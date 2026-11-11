@@ -36,6 +36,12 @@
       color: var(--ink);
       background: #cfd3cc;
       min-height: 100vh;
+      min-height: 100dvh;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      box-sizing: border-box;
     }
     button, input, select, textarea { font-family: inherit; }
     .toolbar {
@@ -45,6 +51,8 @@
       padding: 8px 10px;
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
       box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      box-sizing: border-box;
+      width: 100%;
     }
     .toolbar h1 {
       font-size: 14px; margin: 0 10px 0 0; font-weight: 700;
@@ -60,11 +68,29 @@
     .toolbar button.danger { background: #8a1c1c; }
     .toolbar button.ghost { background: transparent; border: 1px solid #9ec9a8; color: #e8f5ea; }
     .toolbar button:hover, .toolbar label.btn:hover { filter: brightness(1.08); }
+    .toolbar button:disabled, .next-bar button:disabled {
+      opacity: 0.45; cursor: not-allowed; filter: none;
+    }
     .toolbar .hint { font-size: 11px; color: #c9d9c8; }
-    .wrap { padding: 12px 8px 40px; display: flex; justify-content: center; }
-    .sheet {
-      width: 297mm;
+    .toolbar-more-btn { display: none; }
+    .toolbar-extras { display: contents; }
+    .more-menu-slot { display: none; }
+    .wrap {
+      padding: 12px 8px 40px;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      justify-content: flex-start;
+      width: 100%;
       max-width: 100%;
+      box-sizing: border-box;
+    }
+    .sheet {
+      width: 100%;
+      max-width: 297mm;
+      margin: 0 auto;
+      box-sizing: border-box;
       min-height: 210mm;
       background: var(--paper);
       color: var(--ink);
@@ -220,16 +246,43 @@
       background: #c9a227; color: #1a1a1a; font-size: 14px; font-weight: 800;
       padding: 9px 16px; letter-spacing: .03em;
     }
+    .toolbar button.btn-prev {
+      background: #2d6a44; color: #fff; font-size: 14px; font-weight: 800;
+      padding: 9px 16px; letter-spacing: .03em;
+    }
     .next-bar {
-      display: flex; align-items: center; gap: 12px; justify-content: flex-start;
-      width: 297mm; max-width: 100%; margin: 0 auto 8px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      justify-content: flex-start;
+      width: 100%;
+      max-width: 297mm;
+      margin: 0 auto 8px;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      background: #eef4ea;
+      border: 1px solid #9eb59e;
+      border-radius: 6px;
     }
     .next-bar button {
       appearance: none; border: 0; background: #c9a227; color: #1a1a1a;
       font-size: 16px; font-weight: 800; padding: 10px 18px; border-radius: 6px;
       cursor: pointer; letter-spacing: .04em; box-shadow: 0 2px 6px rgba(0,0,0,.18);
+      min-height: 44px;
     }
-    .next-bar .next-help { font-size: 12px; color: #334; }
+    .next-bar button.btn-prev-bar { background: #2d6a44; color: #fff; }
+    .next-bar .next-help { font-size: 12px; color: #334; flex: 1 1 180px; min-width: 0; }
+    .viewing-chip {
+      display: inline-block;
+      font-size: 13px; font-weight: 800; color: #143822;
+      background: #fff; border: 1px solid #1b4d2e; border-radius: 999px;
+      padding: 6px 12px; white-space: nowrap;
+    }
+    .viewing-chip[data-status="submitted"] { background: #e7f0e3; }
+    .viewing-chip[data-status="amended"] { background: #fff3cd; border-color: #8a6d2b; }
+    .viewing-chip[data-status="draft"] { background: #fff; }
     .lower-left { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     table.sectors col.w-apt { width: 4.2%; }
     table.sectors col.w-cyc { width: 2.8%; }
@@ -298,8 +351,122 @@
       text-align: center; font-size: 11px; color: #334; margin-top: 10px;
     }
     @media screen and (max-width: 1100px) {
-      .wrap { padding: 8px 0 30px; }
-      .sheet { border-left: 0; border-right: 0; box-shadow: none; }
+      .wrap { padding: 8px 8px 30px; }
+      .sheet {
+        width: 100%;
+        max-width: 100%;
+        border-left: 0; border-right: 0; box-shadow: none;
+        padding: 4mm;
+      }
+      .next-bar { max-width: 100%; width: 100%; }
+      .sheet-head { grid-template-columns: 1fr; gap: 8px; }
+      .sheet-head .titleblock, .sheet-head .serialbox, .sheet-head .brand { text-align: left; }
+      .serialbox input[type="text"], .serialbox input[type="number"] { width: 100%; max-width: 240px; text-align: left; min-height: 44px; }
+      .meta { grid-template-columns: 1fr 1fr; }
+      .inspec { grid-template-columns: 1fr; }
+      .lower { grid-template-columns: 1fr; }
+      .lower-left, .box.ops, .box.trend, .box.totals, .box.continuity {
+        width: 100%; max-width: 100%; min-width: 0;
+      }
+      .tot-grid { font-size: 13px; grid-template-columns: minmax(8em, auto) minmax(5em, 1fr) minmax(5em, 1fr) minmax(5.5em, 1fr); }
+      .tot-grid input, .tot-grid label { font-size: 14px; }
+      .tot-grid input { min-height: 40px; }
+      .box h3 { font-size: 12px; }
+      .ops label { font-size: 15px; min-height: 44px; }
+      .trend { overflow-x: auto; }
+      .trend table { font-size: 12px; min-width: 640px; }
+      .trend input { font-size: 14px; min-height: 40px; }
+      .field input[type="text"], .field input[type="number"], .field input[type="date"], .field input[type="time"] {
+        font-size: 16px; min-height: 44px;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+      }
+      table.sectors {
+        table-layout: auto;
+        width: max(100%, 1600px);
+        min-width: 1600px;
+        font-size: 14px;
+      }
+      table.sectors thead th { font-size: 12px; padding: 6px 4px; }
+      table.sectors td { min-width: 52px; }
+      table.sectors input:not([type="checkbox"]),
+      table.sectors input[type="text"],
+      table.sectors input[type="number"] {
+        font-size: 16px !important;
+        min-height: 44px !important;
+        height: 44px;
+        padding: 8px 4px !important;
+        box-sizing: border-box;
+      }
+      table.sectors .chk { width: 22px; height: 22px; }
+      td.block-gutter {
+        width: 78px !important;
+        min-width: 78px !important;
+        max-width: 78px !important;
+        overflow: hidden !important;
+      }
+      td.block-gutter .block-label {
+        max-width: 76px;
+        overflow: hidden;
+        word-break: break-word;
+      }
+      .toolbar-more-btn { display: inline-flex; min-height: 44px; }
+      .toolbar-extras { display: none; }
+      .toolbar.more-open .toolbar-extras {
+        display: flex; flex-wrap: wrap; gap: 6px;
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: var(--toolbar); padding: 8px 10px 12px;
+        box-shadow: 0 6px 16px rgba(0,0,0,.3); z-index: 60;
+      }
+      .toolbar button, .toolbar label.btn { min-height: 44px; font-size: 13px; }
+    }
+    @media screen and (max-width: 600px) {
+      .meta { grid-template-columns: 1fr; }
+      .next-bar .next-help { flex-basis: 100%; }
+    }
+    /* Force the desktop/print sheet geometry during PDF capture, even on a narrow device. */
+    html.pdf-layout .wrap { padding: 0; }
+    html.pdf-layout .sheet {
+      width: 297mm !important;
+      max-width: 297mm !important;
+      margin: 0 auto !important;
+      padding: 5mm 6mm 5mm !important;
+      border: 1px solid #8aa38a !important;
+      box-shadow: none !important;
+    }
+    html.pdf-layout .sheet-head { grid-template-columns: 1fr auto 1fr !important; }
+    html.pdf-layout .meta { grid-template-columns: 1.1fr 1.1fr 1fr !important; }
+    html.pdf-layout .inspec { grid-template-columns: 1fr 1fr auto !important; }
+    html.pdf-layout .lower { grid-template-columns: 1.35fr 0.7fr 1.05fr !important; }
+    html.pdf-layout .table-scroll { overflow: visible !important; }
+    html.pdf-layout table.sectors {
+      width: 100% !important;
+      min-width: 0 !important;
+      table-layout: fixed !important;
+      font-size: 8px !important;
+    }
+    html.pdf-layout table.sectors thead th { font-size: 8px !important; padding: 2px 1px !important; }
+    html.pdf-layout table.sectors td { min-width: 0 !important; }
+    html.pdf-layout table.sectors input[type="text"],
+    html.pdf-layout table.sectors input[type="number"],
+    html.pdf-layout table.sectors .pdf-val {
+      font-size: 9px !important;
+      min-height: 0 !important;
+      height: auto !important;
+      padding: 2px 0 !important;
+    }
+    html.pdf-layout .tot-grid { font-size: 9px !important; }
+    html.pdf-layout .tot-grid input { font-size: 11px !important; min-height: 0 !important; }
+    html.pdf-layout .trend table { font-size: 8px !important; min-width: 0 !important; }
+    html.pdf-layout .trend input { font-size: 10px !important; min-height: 0 !important; }
+    html.pdf-layout .field input[type="text"],
+    html.pdf-layout .field input[type="number"],
+    html.pdf-layout .field input[type="date"],
+    html.pdf-layout .field input[type="time"] {
+      font-size: 12px !important; min-height: 0 !important;
     }
     @media print {
       body { background: #fff; }
@@ -315,11 +482,14 @@
   </style>
 </head>
 <body>
-  <div class="toolbar no-print">
+  <div class="toolbar no-print" id="toolbar">
     <h1>SE2A Flight Record</h1>
+    <button type="button" id="btn-prev-sheet" class="btn-prev">Previous Sheet</button>
     <button type="button" id="btn-next-sheet" class="btn-next">Next Sheet</button>
-    <button type="button" id="btn-draft">Save draft</button>
     <button type="button" id="btn-submit" class="primary">Submit sheet</button>
+    <button type="button" id="btn-send" class="primary">Send</button>
+    <div class="toolbar-extras" id="toolbar-extras">
+    <button type="button" id="btn-draft">Save draft</button>
     <button type="button" id="btn-new">New sheet</button>
     <button type="button" id="btn-cf">Carry forward…</button>
     <button type="button" id="btn-export-this">Export this sheet</button>
@@ -328,17 +498,20 @@
     <button type="button" id="btn-export-json">Export JSON</button>
     <button type="button" id="btn-import-json">Import JSON</button>
     <button type="button" id="btn-pdf">Download PDF</button>
-    <button type="button" id="btn-send" class="primary">Send</button>
     <button type="button" id="btn-print">Print / PDF</button>
     <button type="button" id="btn-history" class="ghost">History</button>
     <button type="button" id="btn-settings" class="ghost">Settings</button>
+    </div>
+    <button type="button" id="btn-more" class="ghost toolbar-more-btn" aria-haspopup="true" aria-expanded="false">More</button>
     <span class="hint" id="status-hint"></span>
   </div>
 
   <div class="wrap">
-    <div class="next-bar no-print">
+    <div class="next-bar no-print" id="next-bar">
+      <button type="button" id="btn-prev-sheet-top" class="btn-prev-bar">Previous Sheet</button>
       <button type="button" id="btn-next-sheet-top">Next Sheet</button>
-      <span class="next-help">Files this sheet, starts the next serial, and carries totals forward by default. Serials are never reused.</span>
+      <span class="next-help">Previous opens the next-lower serial from history (a draft of this sheet is saved first, without using a new serial). Next opens the next saved serial, or starts a new sheet if you are on the latest. Serials are never reused.</span>
+      <span class="viewing-chip" id="viewing-chip">Viewing new sheet (draft)</span>
     </div>
     <article class="sheet" id="sheet">
       <header class="sheet-head">
@@ -607,7 +780,7 @@
 
   <!-- INLINE_LIBS -->
 <script>
-window.SE2A_SHEET_HEADERS = ["Serial No", "UUID", "Submitted At", "Status", "Date", "Aircraft Type", "Registration", "Daily Inspection Signature", "Daily Inspection ARN", "Oil Inspection Signature", "Oil Inspection ARN", "Oil Uplift No1 (qts)", "Oil Uplift No2 (qts)", "Cycles This Sheet No1", "Cycles This Sheet No2", "Cycles C/Forward No1", "Cycles C/Forward No2", "Total Engine Cycles No1", "Total Engine Cycles No2", "Total Block Time", "Hard Landing", "Hard Landing Note", "Total Flight Time", "Total Time C/Forward", "Total Time in Service", "Total Landings", "Landings C/Forward", "Total Landings in Service", "Total PAX", "Total Fuel Added (Litres)", "Total Onboard Fuel C/Forward (lbs)", "Total Fuel Used (lbs)", "Total Onboard Fuel Remaining (lbs)", "Type of Operations", "APR Total Used Mins Eng1", "APR Total Used Mins Eng2", "Trend Eng1 Start EGT", "Trend Eng1 Torque", "Trend Eng1 EGT", "Trend Eng1 RPM", "Trend Eng1 Fuel Flow", "Trend Eng1 Oil Pressure", "Trend Eng1 Oil Temp", "Trend Eng2 Start EGT", "Trend Eng2 Torque", "Trend Eng2 EGT", "Trend Eng2 RPM", "Trend Eng2 Fuel Flow", "Trend Eng2 Oil Pressure", "Trend Eng2 Oil Temp", "Anti Ice", "ALT", "OAT", "IAS", "Crew Notes", "Transcription Notes", "Form Revision", "Continuity OK", "Continuity Notes"];
+window.SE2A_SHEET_HEADERS = ["Serial No", "UUID", "Submitted At", "Amended At", "Status", "Date", "Aircraft Type", "Registration", "Daily Inspection Signature", "Daily Inspection ARN", "Oil Inspection Signature", "Oil Inspection ARN", "Oil Uplift No1 (qts)", "Oil Uplift No2 (qts)", "Cycles This Sheet No1", "Cycles This Sheet No2", "Cycles C/Forward No1", "Cycles C/Forward No2", "Total Engine Cycles No1", "Total Engine Cycles No2", "Total Block Time", "Hard Landing", "Hard Landing Note", "Total Flight Time", "Total Time C/Forward", "Total Time in Service", "Total Landings", "Landings C/Forward", "Total Landings in Service", "Total PAX", "Total Fuel Added (Litres)", "Total Onboard Fuel C/Forward (lbs)", "Total Fuel Used (lbs)", "Total Onboard Fuel Remaining (lbs)", "Type of Operations", "APR Total Used Mins Eng1", "APR Total Used Mins Eng2", "Trend Eng1 Start EGT", "Trend Eng1 Torque", "Trend Eng1 EGT", "Trend Eng1 RPM", "Trend Eng1 Fuel Flow", "Trend Eng1 Oil Pressure", "Trend Eng1 Oil Temp", "Trend Eng2 Start EGT", "Trend Eng2 Torque", "Trend Eng2 EGT", "Trend Eng2 RPM", "Trend Eng2 Fuel Flow", "Trend Eng2 Oil Pressure", "Trend Eng2 Oil Temp", "Anti Ice", "ALT", "OAT", "IAS", "Crew Notes", "Transcription Notes", "Form Revision", "Continuity OK", "Continuity Notes"];
 window.SE2A_SECTOR_HEADERS = ["Serial No", "Sector No", "From", "To", "Engine Cycles No1", "Engine Cycles No2", "Block Start", "Block Stop", "Block Total", "Block Group ID", "Block Start Row", "Block End Row", "Block From", "Block To", "Block Flight Total", "Take Off", "Land", "Flight Total", "TIS After", "Captain", "Captain PF", "F/O", "F/O PF", "Landings", "PAX", "Fuel Added (Litres)", "Fuel Start (lbs)", "Fuel Shut Down (lbs)", "Fuel Used (lbs)"];
 
 </script>
@@ -1094,6 +1267,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   let currentStatus = "draft";
   let submittedAt = "";
   let savedAt = "";
+  let amendedAt = "";
+  let amendArmed = false;
   let transNotes = "";
   let dailySig = { dataUrl: "", at: "" };
   let oilSig = { dataUrl: "", at: "" };
@@ -1252,7 +1427,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   function emptyRecord() {
     return {
-      serial: "", uuid: "", submittedAt: "", savedAt: "", status: "draft",
+      serial: "", uuid: "", submittedAt: "", savedAt: "", amendedAt: "", status: "draft",
       formRev: "SE2A November 2025",
       aircraftType: "C212-400", registration: "", date: "",
       dailyARN: "", oilARN: "",
@@ -1400,7 +1575,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   function serialTaken(serial, exceptUuid) {
     return loadRecords().some(function (r) {
-      return String(r.serial) === String(serial) && r.uuid !== exceptUuid && r.status === "submitted";
+      return String(r.serial) === String(serial) && r.uuid !== exceptUuid && (r.status === "submitted" || r.status === "amended");
     });
   }
 
@@ -1417,7 +1592,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function previousSheetFor(rec) {
     const serial = parseInt(rec && rec.serial, 10);
     const arr = loadRecords().filter(function (r) {
-      return r && r.status === "submitted" && r.uuid !== (rec && rec.uuid);
+      return r && (r.status === "submitted" || r.status === "amended") && r.uuid !== (rec && rec.uuid);
     });
     const below = arr.filter(function (r) {
       const s = parseInt(r.serial, 10);
@@ -1897,6 +2072,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     rec.status = currentStatus;
     rec.submittedAt = submittedAt;
     rec.savedAt = savedAt;
+    rec.amendedAt = amendedAt;
     rec.transcriptionNotes = transNotes;
     rec.totalsOverridden = overrideOn;
     rec.dailySigDataUrl = dailySig.dataUrl;
@@ -1931,6 +2107,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     currentStatus = rec.status || "draft";
     submittedAt = rec.submittedAt || "";
     savedAt = rec.savedAt || "";
+    amendedAt = rec.amendedAt || "";
+    amendArmed = currentStatus === "amended";
     transNotes = rec.transcriptionNotes || "";
     overrideOn = !!rec.totalsOverridden;
     const o = document.getElementById("f-override");
@@ -1966,7 +2144,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     updateSigStamps();
     validateTimes();
     syncing = false;
-    updateHint();
+    updateNav();
   }
 
   function applyOverrideState() {
@@ -2135,19 +2313,25 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   let saveTimer = null;
   function scheduleSave() {
     if (syncing) return;
+    if (currentStatus === "submitted" && !amendArmed) {
+      if (!confirmAmendIfNeeded()) return;
+    }
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveDraft, 400);
+    saveTimer = setTimeout(function () { saveDraft(true); }, 400);
   }
 
   function saveDraft(silent) {
     const rec = recalc(readForm());
     if (!rec.uuid) { rec.uuid = uuid(); currentUuid = rec.uuid; }
-    rec.status = rec.status === "submitted" ? "submitted" : "draft";
+    if (!isFiledStatus(rec.status)) rec.status = "draft";
     rec.savedAt = nowIso();
     savedAt = rec.savedAt;
+    currentStatus = rec.status;
+    currentUuid = rec.uuid;
+    upsertRecord(rec);
     localStorage.setItem(LS.draft, JSON.stringify(rec));
     if (!silent) toast("Draft saved on this device");
-    updateHint();
+    updateNav();
     return rec;
   }
 
@@ -2155,10 +2339,62 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const el = document.getElementById("status-hint");
     if (!el) return;
     const rec = { serial: document.getElementById("f-serial").value, status: currentStatus, savedAt: savedAt };
-    el.textContent = (rec.status === "submitted" ? "Submitted" : "Draft") +
+    const label = rec.status === "amended" ? "Amended" : (rec.status === "submitted" ? "Submitted" : "Draft");
+    el.textContent = label +
       (rec.serial ? " · Serial " + rec.serial : "") +
+      (amendedAt ? " · amended " + amendedAt : "") +
       (savedAt ? " · saved " + savedAt : "") +
       " · data stays on this device";
+  }
+
+  function updateNav() {
+    const serialEl = document.getElementById("f-serial");
+    const serial = serialEl ? serialEl.value : "";
+    const prev = previousHistorySheet(serial);
+    ["btn-prev-sheet", "btn-prev-sheet-top"].forEach(function (id) {
+      const b = document.getElementById(id);
+      if (b) b.disabled = !prev;
+    });
+    const chip = document.getElementById("viewing-chip");
+    if (chip) {
+      const st = currentStatus || "draft";
+      chip.textContent = serial ? ("Viewing sheet " + serial + " (" + st + ")") : "Viewing new sheet (draft)";
+      chip.setAttribute("data-status", st);
+    }
+    updateHint();
+  }
+
+  function confirmAmendIfNeeded(opts) {
+    opts = opts || {};
+    if (syncing) return true;
+    if (currentStatus !== "submitted") return true;
+    if (amendArmed) return true;
+    if (opts.force) {
+      markAmended();
+      return true;
+    }
+    if (!confirm("This sheet is already submitted. Edit it and mark it as amended?")) {
+      const saved = loadRecords().find(function (r) { return r.uuid === currentUuid; });
+      if (saved) { writeForm(recalc(saved)); liveRecalc(); }
+      return false;
+    }
+    markAmended();
+    return true;
+  }
+
+  function markAmended() {
+    currentStatus = "amended";
+    if (!amendedAt) amendedAt = nowIso();
+    amendArmed = true;
+    const rec = recalc(readForm());
+    rec.status = "amended";
+    rec.amendedAt = amendedAt;
+    rec.savedAt = nowIso();
+    savedAt = rec.savedAt;
+    upsertRecord(rec);
+    localStorage.setItem(LS.draft, JSON.stringify(rec));
+    updateNav();
+    toast("Sheet " + (rec.serial || "") + " marked as amended");
   }
 
   function toast(msg) {
@@ -2171,9 +2407,57 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   function upsertRecord(rec) {
     const arr = loadRecords();
-    const i = arr.findIndex(function (r) { return (rec.uuid && r.uuid === rec.uuid) || (rec.serial && String(r.serial) === String(rec.serial) && r.status === "submitted"); });
+    let i = arr.findIndex(function (r) { return rec.uuid && r.uuid === rec.uuid; });
+    if (i < 0 && rec.serial && rec.status !== "draft") {
+      i = arr.findIndex(function (r) {
+        return String(r.serial) === String(rec.serial) && r.status !== "draft";
+      });
+    }
     if (i >= 0) arr[i] = rec; else arr.push(rec);
     saveRecords(arr);
+  }
+
+  function serialValue(r) {
+    const n = parseInt(r && r.serial, 10);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function historyBySerial() {
+    const arr = loadRecords().filter(function (r) { return serialValue(r) != null; });
+    arr.sort(function (a, b) {
+      const sa = serialValue(a), sb = serialValue(b);
+      if (sa !== sb) return sa - sb;
+      return String(a.savedAt || a.submittedAt || "").localeCompare(String(b.savedAt || b.submittedAt || ""));
+    });
+    return arr;
+  }
+
+  function previousHistorySheet(serial) {
+    const n = parseInt(serial, 10);
+    if (!Number.isFinite(n)) return null;
+    const arr = historyBySerial().filter(function (r) { return serialValue(r) < n; });
+    return arr.length ? arr[arr.length - 1] : null;
+  }
+
+  function nextHistorySheet(serial) {
+    const n = parseInt(serial, 10);
+    if (!Number.isFinite(n)) return null;
+    const arr = historyBySerial().filter(function (r) { return serialValue(r) > n; });
+    return arr.length ? arr[0] : null;
+  }
+
+  function openSheet(rec, msg) {
+    const opened = recalc(JSON.parse(JSON.stringify(rec)));
+    writeForm(opened);
+    liveRecalc();
+    localStorage.setItem(LS.draft, JSON.stringify(opened));
+    updateNav();
+    if (msg !== false) toast(msg || ("Opened serial " + (opened.serial || "")));
+    return opened;
+  }
+
+  function isFiledStatus(st) {
+    return st === "submitted" || st === "amended";
   }
 
   function incompleteReason(rec) {
@@ -2213,7 +2497,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       document.getElementById("f-serial").value = rec.serial;
       recalc(rec);
     }
-    rec.status = "submitted";
+    if (rec.status !== "amended") rec.status = "submitted";
     rec.submittedAt = rec.submittedAt || nowIso();
     rec.savedAt = nowIso();
     rec.submittedAt = rec.submittedAt;
@@ -2229,7 +2513,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     localStorage.setItem(LS.draft, JSON.stringify(rec));
     writeForm(rec);
     liveRecalc();
-    updateHint();
+    updateNav();
     if (!opts.silent) toast("Sheet " + rec.serial + " filed on this device");
     return rec;
   }
@@ -2237,12 +2521,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function nextSheet(opts) {
     opts = opts || {};
     const rec = recalc(readForm());
+    const later = nextHistorySheet(rec.serial);
+    if (later) {
+      saveDraft(true);
+      return openSheet(later, "Opened serial " + (later.serial || ""));
+    }
     const incomplete = incompleteReason(rec);
     if (incomplete && !opts.force) {
       if (!confirm("This sheet looks incomplete (" + incomplete + "). File it and start the next sheet anyway?")) return;
     }
     let filed = rec;
-    if (rec.status !== "submitted") {
+    if (!isFiledStatus(rec.status)) {
       filed = submitSheet({ force: opts.force, silent: true });
       if (!filed) return;
     } else {
@@ -2263,8 +2552,22 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     else liveRecalc();
     setNextSerial(nextUnusedSerial((parseInt(fresh.serial, 10) || 0) + 1));
     saveDraft(true);
+    updateNav();
     toast("Started serial " + fresh.serial + (carry ? " with totals carried forward" : ""));
     return fresh;
+  }
+
+  function previousSheet(opts) {
+    opts = opts || {};
+    const rec = recalc(readForm());
+    const prev = previousHistorySheet(rec.serial);
+    if (!prev) {
+      toast("No earlier sheet in history");
+      updateNav();
+      return;
+    }
+    saveDraft(true);
+    return openSheet(prev, "Opened serial " + (prev.serial || ""));
   }
 
   function newSheet(fromPrev) {
@@ -2284,7 +2587,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function lastSubmitted() {
-    const arr = loadRecords().filter(function (r) { return r.status === "submitted"; });
+    const arr = loadRecords().filter(function (r) { return r.status === "submitted" || r.status === "amended"; });
     if (!arr.length) return null;
     arr.sort(function (a, b) {
       const sa = parseInt(a.serial, 10) || 0, sb = parseInt(b.serial, 10) || 0;
@@ -2318,7 +2621,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   /* ---------- Excel / JSON / PDF ---------- */
   function recordToSheetRow(r) {
     const map = {
-      "Serial No": r.serial, "UUID": r.uuid, "Submitted At": r.submittedAt || r.savedAt, "Status": r.status, "Date": r.date,
+      "Serial No": r.serial, "UUID": r.uuid, "Submitted At": r.submittedAt || r.savedAt, "Amended At": r.amendedAt || "", "Status": r.status, "Date": r.date,
       "Aircraft Type": r.aircraftType, "Registration": normalizeReg(r.registration),
       "Daily Inspection Signature": signedLabel({ dataUrl: r.dailySigDataUrl, at: r.dailySigAt }),
       "Daily Inspection ARN": r.dailyARN,
@@ -2599,6 +2902,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   async function generatePdfBlobForCurrent() {
     const sheet = document.getElementById("sheet");
     const hidden = [];
+    const root = document.documentElement;
+    const hadPdf = root.classList.contains("pdf-layout");
+    root.classList.add("pdf-layout");
     document.querySelectorAll(".no-print").forEach(function (el) {
       hidden.push([el, el.style.display]);
       el.style.display = "none";
@@ -2611,8 +2917,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         useCORS: true,
         backgroundColor: "#e7f0e3",
         logging: false,
-        windowWidth: sheet.scrollWidth,
-        onclone: function (doc) { prepareSheetForCapture(doc); }
+        windowWidth: 1123,
+        onclone: function (doc) {
+          doc.documentElement.classList.add("pdf-layout");
+          prepareSheetForCapture(doc);
+        }
       });
       const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
@@ -2627,6 +2936,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       return pdf.output("blob");
     } finally {
       hidden.forEach(function (pair) { pair[0].style.display = pair[1]; });
+      if (!hadPdf) root.classList.remove("pdf-layout");
     }
   }
 
@@ -2657,7 +2967,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       try {
         fitTextToCells(sheet);
         await new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
-        const canvas = await html2canvas(sheet, { scale: 2.5, useCORS: true, backgroundColor: "#e7f0e3", logging: false, onclone: function (doc) { prepareSheetForCapture(doc); } });
+        const canvas = await html2canvas(sheet, { scale: 2.5, useCORS: true, backgroundColor: "#e7f0e3", logging: false, windowWidth: 1123, onclone: function (doc) { doc.documentElement.classList.add("pdf-layout"); prepareSheetForCapture(doc); } });
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
         const margin = 6;
@@ -2810,6 +3120,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     rec.serial = row["Serial No"];
     rec.uuid = row["UUID"] || uuid();
     rec.submittedAt = row["Submitted At"];
+    rec.amendedAt = row["Amended At"] || "";
     rec.status = row["Status"] || "submitted";
     rec.date = row["Date"];
     rec.aircraftType = row["Aircraft Type"];
@@ -2967,7 +3278,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (!arr.length) { box.innerHTML = "<p>No saved sheets yet.</p>"; return; }
     box.innerHTML = arr.map(function (r, i) {
       return '<div class="hist-item"><div><strong>Serial ' + (r.serial || "—") + "</strong> · " + (r.date || "no date") + " · " + (normalizeReg(r.registration) || "") +
-        "<br><span style=\"color:#3d5a44\">" + (r.status || "") + (r.submittedAt ? " · " + r.submittedAt : "") + "</span></div>" +
+        "<br><span style=\"color:#3d5a44\">" + (r.status || "") + (r.submittedAt ? " · submitted " + r.submittedAt : "") + (r.amendedAt ? " · amended " + r.amendedAt : "") + "</span></div>" +
         '<div><button type="button" data-load="' + i + '">Open</button>' +
         '<button type="button" data-del="' + i + '" style="background:#8a1c1c">Delete</button></div></div>';
     }).join("");
@@ -2977,6 +3288,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   /* ---------- events ---------- */
   function onFormChange(ev) {
     if (syncing) return;
+    if (!confirmAmendIfNeeded()) return;
     const t = ev.target;
     if (t && t.getAttribute && t.getAttribute("placeholder") === "hh:mm" && ev.type === "blur") {
       t.value = normalizeTimeInput(t.value);
@@ -2988,6 +3300,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       t.value = displayReg(normalizeReg(t.value));
     }
     liveRecalc();
+    updateNav();
     scheduleSave();
   }
 
@@ -3041,8 +3354,29 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
     document.getElementById("btn-draft").addEventListener("click", function () { saveDraft(false); });
     document.getElementById("btn-submit").addEventListener("click", function () { submitSheet(); });
+    document.getElementById("btn-prev-sheet").addEventListener("click", function () { previousSheet(); });
+    document.getElementById("btn-prev-sheet-top").addEventListener("click", function () { previousSheet(); });
     document.getElementById("btn-next-sheet").addEventListener("click", function () { nextSheet(); });
     document.getElementById("btn-next-sheet-top").addEventListener("click", function () { nextSheet(); });
+    const toolbar = document.getElementById("toolbar");
+    const moreBtn = document.getElementById("btn-more");
+    function setMoreOpen(open) {
+      if (!toolbar || !moreBtn) return;
+      toolbar.classList.toggle("more-open", !!open);
+      moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    moreBtn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      setMoreOpen(!toolbar.classList.contains("more-open"));
+    });
+    document.addEventListener("click", function (ev) {
+      if (!toolbar.classList.contains("more-open")) return;
+      if (toolbar.contains(ev.target)) return;
+      setMoreOpen(false);
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") setMoreOpen(false);
+    });
     document.getElementById("btn-new").addEventListener("click", function () {
       if (!confirm("Start a new sheet without filing the current one? The current sheet will be saved as a draft first.")) return;
       saveDraft(true);
@@ -3142,7 +3476,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       continuityCheck: continuityCheck,
       previousSheetFor: previousSheetFor,
       nextSheet: nextSheet,
+      previousSheet: previousSheet,
       submitSheet: submitSheet,
+      updateNav: updateNav,
+      previousHistorySheet: previousHistorySheet,
+      nextHistorySheet: nextHistorySheet,
+      saveDraft: saveDraft,
       nextUnusedSerial: nextUnusedSerial,
       applyCarryForward: applyCarryForward
     };
