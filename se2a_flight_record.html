@@ -3344,7 +3344,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     applySheetStatus();
     const serialEl = document.getElementById("f-serial");
     const serial = serialEl ? serialEl.value : "";
-    const prev = previousHistorySheet(serial);
+    const ac = navAircraftId({ aircraftId: (document.getElementById("f-aircraft") || {}).value });
+    const prev = previousHistorySheet(serial, ac, currentUuid);
     ["btn-prev-sheet", "btn-prev-sheet-top"].forEach(function (id) {
       const b = document.getElementById(id);
       if (b) b.disabled = !prev;
@@ -3434,18 +3435,36 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return arr;
   }
 
-  function previousHistorySheet(serial, aircraftId) {
-    const n = parseInt(serial, 10);
-    if (!Number.isFinite(n)) return null;
-    const arr = historyBySerial(aircraftId).filter(function (r) { return serialValue(r) < n; });
-    return arr.length ? arr[arr.length - 1] : null;
+  function navAircraftId(rec) {
+    if (rec && rec.aircraftId && aircraftById(rec.aircraftId)) return rec.aircraftId;
+    const sel = document.getElementById("f-aircraft");
+    if (sel && sel.value && aircraftById(sel.value)) return sel.value;
+    return rec ? (inferAircraftId(rec) || "") : "";
   }
 
-  function nextHistorySheet(serial, aircraftId) {
+  function historyExceptCurrent(aircraftId, exceptUuid) {
+    return historyBySerial(aircraftId).filter(function (r) {
+      return !exceptUuid || r.uuid !== exceptUuid;
+    });
+  }
+
+  function previousHistorySheet(serial, aircraftId, exceptUuid) {
+    const arr = historyExceptCurrent(aircraftId, exceptUuid);
     const n = parseInt(serial, 10);
-    if (!Number.isFinite(n)) return null;
-    const arr = historyBySerial(aircraftId).filter(function (r) { return serialValue(r) > n; });
-    return arr.length ? arr[0] : null;
+    if (!Number.isFinite(n)) {
+      /* A new unsaved draft may not have a serial yet — Previous should open the latest sheet for this aircraft. */
+      return arr.length ? arr[arr.length - 1] : null;
+    }
+    const below = arr.filter(function (r) { return serialValue(r) < n; });
+    return below.length ? below[below.length - 1] : null;
+  }
+
+  function nextHistorySheet(serial, aircraftId, exceptUuid) {
+    const arr = historyExceptCurrent(aircraftId, exceptUuid);
+    const n = parseInt(serial, 10);
+    if (!Number.isFinite(n)) return arr.length ? arr[0] : null;
+    const above = arr.filter(function (r) { return serialValue(r) > n; });
+    return above.length ? above[0] : null;
   }
 
   function openSheet(rec, msg) {
@@ -3539,7 +3558,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function nextSheet(opts) {
     opts = opts || {};
     const rec = recalc(readForm());
-    const later = nextHistorySheet(rec.serial, rec.aircraftId);
+    const later = nextHistorySheet(rec.serial, navAircraftId(rec), rec.uuid || currentUuid);
     if (later) {
       saveDraft(true);
       return openSheet(later, "Opened serial " + (later.serial || "") + " (" + aircraftLabel(later.aircraftId) + ")");
@@ -3588,7 +3607,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function previousSheet(opts) {
     opts = opts || {};
     const rec = recalc(readForm());
-    const prev = previousHistorySheet(rec.serial, rec.aircraftId);
+    const prev = previousHistorySheet(rec.serial, navAircraftId(rec), rec.uuid || currentUuid);
     if (!prev) {
       toast("No earlier " + aircraftLabel(rec.aircraftId) + " sheet in history");
       updateNav();
@@ -4896,6 +4915,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       updateNav: updateNav,
       previousHistorySheet: previousHistorySheet,
       nextHistorySheet: nextHistorySheet,
+      navAircraftId: navAircraftId,
       saveDraft: saveDraft,
       nextUnusedSerial: nextUnusedSerial,
       applyCarryForward: applyCarryForward,
