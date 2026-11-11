@@ -1,6 +1,6 @@
 /* Cache the form shell so a hosted copy works offline.
    Flight data is never stored on the server — only in the browser's localStorage. */
-const CACHE = "se2a-form-v1";
+const CACHE = "se2a-form-v2";
 const ASSETS = [
   "./",
   "./index.html",
