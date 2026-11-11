@@ -1,14 +1,14 @@
 /* Cache the form shell so a hosted copy works offline.
    Flight data is never stored on the server — only in the browser's localStorage. */
-const CACHE = "se2a-form-v2";
+const CACHE = "se2a-form-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./se2a_flight_record.html",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./apple-touch-icon.png"
+  "./icon-192-v2.png",
+  "./icon-512-v2.png",
+  "./apple-touch-icon-v2.png"
 ];
 
 self.addEventListener("install", (event) => {

@@ -11,8 +11,9 @@
   <!-- se2a-build: blocks-continuity-v2 -->
   <title>Skytraders Flight Record Sheet SE2A</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon-v2.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192-v2.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512-v2.png">
   <style>
     :root {
       --paper: #e7f0e3;
@@ -170,7 +171,7 @@
     }
     table.sectors input[type="text"], table.sectors input[type="number"] {
       width: 100%; border: 0; background: var(--input); text-align: center;
-      font-size: 10px; padding: 2px 1px; color: var(--ink);
+      font-size: 9px; padding: 2px 0; color: var(--ink);
     }
     table.sectors input.computed, input.computed, .computed {
       background: var(--computed) !important; font-weight: 700;
@@ -181,11 +182,11 @@
       text-transform: uppercase;
     }
     table.sectors .chk { width: 14px; height: 14px; margin: 0; accent-color: var(--green); }
-    table.sectors col.w-tis { width: 4.4%; }
-    table.sectors td { position: relative; overflow: hidden; }
-    table.sectors td input { position: relative; z-index: 1; }
-    table.sectors col.w-block { width: 4.6%; }
-    table.sectors col.w-no { width: 3.0%; }
+    table.sectors td { position: relative; overflow: visible; }
+    table.sectors td input { position: relative; z-index: 1; min-width: 0; max-width: 100%;
+      box-sizing: border-box; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+    table.sectors col.w-block { width: 5.4%; }
+    table.sectors col.w-no { width: 2.2%; }
     table.sectors tr.block-member td { background: #e3eee0; }
     table.sectors tr.block-member input { background: #f7fbf4; }
     table.sectors tr.block-member input.computed { background: #cfdcc8; }
@@ -194,10 +195,14 @@
       vertical-align: middle; padding: 1px 2px; background: #d5e6cf;
       border-left: 3px solid var(--green);
     }
+    td.block-gutter { overflow: visible; }
     td.block-gutter .block-label {
-      font-size: 7.5px; font-weight: 800; color: var(--green);
-      line-height: 1.15; text-align: center;
+      font-size: 6.5px; font-weight: 800; color: var(--green);
+      line-height: 1.15; text-align: center; overflow: visible; padding: 2px 1px;
     }
+    td.block-gutter .bl-ports { font-size: 6.5px; font-weight: 800; letter-spacing: 0; overflow-wrap: anywhere; }
+    td.block-gutter .bl-time { font-size: 7px; font-weight: 800; letter-spacing: 0; }
+    td.block-gutter .bl-rows { font-size: 5.5px; font-weight: 700; margin-top: 1px; }
     input.cf-mismatch, select.cf-mismatch { outline: 2px solid #b42318; background: #fde8e8 !important; }
     input.warn-flag { background: #fff3cd !important; }
     .continuity ul { list-style: none; margin: 0; padding: 0; font-size: 9px; }
@@ -226,18 +231,18 @@
     }
     .next-bar .next-help { font-size: 12px; color: #334; }
     .lower-left { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-    table.sectors col.w-no { width: 3.0%; }
-    table.sectors col.w-apt { width: 5.6%; }
-    table.sectors col.w-cyc { width: 3.6%; }
-    table.sectors col.w-t { width: 5.2%; }
-    table.sectors col.w-tot { width: 5.2%; }
-    table.sectors col.w-crew { width: 5.4%; }
-    table.sectors col.w-pf { width: 2.6%; }
-    table.sectors col.w-n { width: 3.8%; }
-    table.sectors col.w-fuel { width: 5.4%; }
+    table.sectors col.w-apt { width: 4.2%; }
+    table.sectors col.w-cyc { width: 2.8%; }
+    table.sectors col.w-t { width: 5.7%; }
+    table.sectors col.w-tot { width: 6.0%; }
+    table.sectors col.w-tis { width: 7.2%; }
+    table.sectors col.w-crew { width: 4.0%; }
+    table.sectors col.w-pf { width: 2.2%; }
+    table.sectors col.w-n { width: 3.2%; }
+    table.sectors col.w-fuel { width: 4.15%; }
     .lower {
       display: grid;
-      grid-template-columns: 1.2fr 0.75fr 1.1fr;
+      grid-template-columns: 1.35fr 0.7fr 1.05fr;
       gap: 5px;
       margin-top: 2.5mm;
     }
@@ -246,10 +251,10 @@
       margin: 0 0 3px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
       color: #fff; background: var(--green); padding: 2px 5px;
     }
-    .tot-grid { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 2px 4px; align-items: center; font-size: 9px; }
+    .tot-grid { display: grid; grid-template-columns: minmax(7.2em, auto) minmax(4.6em, 1fr) minmax(4.6em, 1fr) minmax(5.4em, 1fr); gap: 2px 4px; align-items: center; font-size: 9px; }
     .tot-grid .h { font-weight: 700; color: var(--muted); font-size: 8px; text-transform: uppercase; }
     .tot-grid label { font-weight: 600; }
-    .tot-grid input { width: 100%; border: 1px solid #9eb59e; background: var(--input); font-size: 10px; padding: 1px 3px; text-align: center; }
+    .tot-grid input { width: 100%; min-width: 0; border: 1px solid #9eb59e; background: var(--input); font-size: 11px; padding: 1px 2px; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 0; box-sizing: border-box; }
     .tot-span { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
     .tot-span input[type="text"] { flex: 1; text-align: left; }
     .ops label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; margin: 3px 0; }
@@ -347,7 +352,7 @@
         </div>
         <div class="serialbox">
           <label for="f-serial">Serial No</label>
-          <input type="number" id="f-serial" data-f="serial" min="1" step="1" inputmode="numeric">
+          <input type="text" id="f-serial" data-f="serial" inputmode="numeric" autocomplete="off" style="font-variant-numeric:tabular-nums">
         </div>
       </header>
 
@@ -568,7 +573,7 @@
       </div>
       <div class="legend">
         Totals are calculated automatically and shown in the tinted cells.
-        A block (chocks off to chocks on) may cover several sectors: enter Block Start on the first row of the block and Block Stop on the last; rows in between may have blank block times. The block total (stop − start, plus 24 hours if it crosses midnight) is shown on the end row. Sheet total block time is the sum of those block totals only. Each sector still has its own flight time. TIS after is C/Forward time plus running flight time down the sheet.
+        A block is departure-to-arrival: enter Block Start on the departure row (with that row’s FROM port) and Block Stop on the final arrival row (with that row’s TO port). Rows in between may have blank block times. The block total is arrival stop − departure start (plus 24 hours if it crosses midnight). The label also shows the sum of the flight times of the sectors in the block, e.g. BLOCK YSWW–YCOR 01:33 (ROWS 2–5) · FLT 01:23. Sheet total block time is the sum of those block totals only. Each sector still has its own flight time. A broken FROM/TO chain (a row’s FROM not equal to the previous row’s TO) is flagged in amber. TIS after is C/Forward time plus running flight time down the sheet.
         Fuel used (lbs) = start − shut down. Other sheet totals sum the sector rows.
         Grand totals = C/Forward + this sheet (time in service = C/F time + total flight time).
         <strong>Onboard fuel remaining = shut-down fuel of the last sector that has a shut-down value</strong>
@@ -603,7 +608,7 @@
   <!-- INLINE_LIBS -->
 <script>
 window.SE2A_SHEET_HEADERS = ["Serial No", "UUID", "Submitted At", "Status", "Date", "Aircraft Type", "Registration", "Daily Inspection Signature", "Daily Inspection ARN", "Oil Inspection Signature", "Oil Inspection ARN", "Oil Uplift No1 (qts)", "Oil Uplift No2 (qts)", "Cycles This Sheet No1", "Cycles This Sheet No2", "Cycles C/Forward No1", "Cycles C/Forward No2", "Total Engine Cycles No1", "Total Engine Cycles No2", "Total Block Time", "Hard Landing", "Hard Landing Note", "Total Flight Time", "Total Time C/Forward", "Total Time in Service", "Total Landings", "Landings C/Forward", "Total Landings in Service", "Total PAX", "Total Fuel Added (Litres)", "Total Onboard Fuel C/Forward (lbs)", "Total Fuel Used (lbs)", "Total Onboard Fuel Remaining (lbs)", "Type of Operations", "APR Total Used Mins Eng1", "APR Total Used Mins Eng2", "Trend Eng1 Start EGT", "Trend Eng1 Torque", "Trend Eng1 EGT", "Trend Eng1 RPM", "Trend Eng1 Fuel Flow", "Trend Eng1 Oil Pressure", "Trend Eng1 Oil Temp", "Trend Eng2 Start EGT", "Trend Eng2 Torque", "Trend Eng2 EGT", "Trend Eng2 RPM", "Trend Eng2 Fuel Flow", "Trend Eng2 Oil Pressure", "Trend Eng2 Oil Temp", "Anti Ice", "ALT", "OAT", "IAS", "Crew Notes", "Transcription Notes", "Form Revision", "Continuity OK", "Continuity Notes"];
-window.SE2A_SECTOR_HEADERS = ["Serial No", "Sector No", "From", "To", "Engine Cycles No1", "Engine Cycles No2", "Block Start", "Block Stop", "Block Total", "Block Group ID", "Block Start Row", "Block End Row", "Take Off", "Land", "Flight Total", "TIS After", "Captain", "Captain PF", "F/O", "F/O PF", "Landings", "PAX", "Fuel Added (Litres)", "Fuel Start (lbs)", "Fuel Shut Down (lbs)", "Fuel Used (lbs)"];
+window.SE2A_SECTOR_HEADERS = ["Serial No", "Sector No", "From", "To", "Engine Cycles No1", "Engine Cycles No2", "Block Start", "Block Stop", "Block Total", "Block Group ID", "Block Start Row", "Block End Row", "Block From", "Block To", "Block Flight Total", "Take Off", "Land", "Flight Total", "TIS After", "Captain", "Captain PF", "F/O", "F/O PF", "Landings", "PAX", "Fuel Added (Litres)", "Fuel Start (lbs)", "Fuel Shut Down (lbs)", "Fuel Used (lbs)"];
 
 </script>
 <script>
@@ -1233,7 +1238,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       no: String(i + 1), from: "", to: "",
       cyc1: "", cyc2: "",
       blockStart: "", blockStop: "", blockTotal: "",
-      blockGroupId: "", blockStartRow: "", blockEndRow: "",
+      blockGroupId: "", blockStartRow: "", blockEndRow: "", blockFrom: "", blockTo: "", blockFlightTotal: "",
       takeOff: "", land: "", flightTotal: "", tisAfter: "",
       captain: "", captainPF: false, fo: "", foPF: false,
       landings: "", pax: "",
@@ -1313,13 +1318,31 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             message: "Block stop on row " + row + " has no matching start" });
         } else {
           const totalMins = clockDuration(open.start, s.blockStop);
+          const dep = sectors[open.index] || {};
+          const arr = s;
+          const fromPort = String(dep.from || "").trim().toUpperCase();
+          const toPort = String(arr.to || "").trim().toUpperCase();
+          let fltMins = 0, anyFlt = false;
+          for (let j = open.index; j <= i; j++) {
+            const sec = sectors[j];
+            const ft = parseHHMM(sec.flightTotal) != null ? parseHHMM(sec.flightTotal) : clockDuration(sec.takeOff, sec.land);
+            if (ft != null) { fltMins += ft; anyFlt = true; }
+          }
+          const flightTotal = anyFlt ? formatHHMM(fltMins) : "";
+          const total = totalMins == null ? "" : formatHHMM(totalMins);
+          const label = "BLOCK " + (fromPort || "—") + "–" + (toPort || "—") + " " + (total || "—") +
+            " (ROWS " + (open.index + 1) + "–" + row + ") · FLT " + (flightTotal || "—");
           blocks.push({
             id: blocks.length + 1,
             startRow: open.index + 1,
             endRow: row,
             start: open.start,
             stop: s.blockStop,
-            total: totalMins == null ? "" : formatHHMM(totalMins),
+            total: total,
+            flightTotal: flightTotal,
+            from: fromPort,
+            to: toPort,
+            label: label,
             startIndex: open.index,
             endIndex: i
           });
@@ -1341,6 +1364,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
               message: "Row " + (i + 1) + " " + (k === "takeOff" ? "take off" : "land") + " " + val + " is outside block " + b.start + "–" + b.stop });
           }
         });
+        if (i > b.startIndex) {
+          const prev = sectors[i - 1];
+          const prevTo = String(prev.to || "").trim().toUpperCase();
+          const thisFrom = String(s.from || "").trim().toUpperCase();
+          if (prevTo && thisFrom && prevTo !== thisFrom) {
+            warnings.push({ type: "port_chain", row: i + 1, field: "from", alsoField: "to", alsoRow: i,
+              message: "Row " + (i + 1) + " FROM " + thisFrom + " does not match previous row's TO " + prevTo });
+          }
+        }
       }
     });
     return { blocks: blocks, errors: errors, warnings: warnings };
@@ -1513,16 +1545,32 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       s.blockGroupId = "";
       s.blockStartRow = "";
       s.blockEndRow = "";
+      s.blockFrom = "";
+      s.blockTo = "";
+      s.blockFlightTotal = "";
       s.tisAfter = "";
+      if (!rec.totalsOverridden) {
+        const ft = clockDuration(s.takeOff, s.land);
+        s.flightTotal = ft == null ? "" : formatHHMM(ft);
+      }
     });
     const grouping = findBlocks(rec.sectors);
     rec.blocks = grouping.blocks;
     rec.blockErrors = grouping.errors;
     rec.blockWarnings = grouping.warnings;
+    if (rec.totalsOverridden) {
+      grouping.blocks.forEach(function (b) {
+        for (let i = b.startIndex; i <= b.endIndex; i++) {
+          rec.sectors[i].blockGroupId = b.id;
+          rec.sectors[i].blockStartRow = b.startRow;
+          rec.sectors[i].blockEndRow = b.endRow;
+          rec.sectors[i].blockFrom = b.from;
+          rec.sectors[i].blockTo = b.to;
+        }
+      });
+    }
     if (!rec.totalsOverridden) {
       rec.sectors.forEach(function (s) {
-        const ft = clockDuration(s.takeOff, s.land);
-        s.flightTotal = ft == null ? "" : formatHHMM(ft);
         const a = toNum(s.fuelStart), b = toNum(s.fuelShutdown);
         s.fuelUsed = (a != null && b != null) ? (a - b) : "";
         s.blockTotal = "";
@@ -1532,7 +1580,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           rec.sectors[i].blockGroupId = b.id;
           rec.sectors[i].blockStartRow = b.startRow;
           rec.sectors[i].blockEndRow = b.endRow;
+          rec.sectors[i].blockFrom = b.from;
+          rec.sectors[i].blockTo = b.to;
           rec.sectors[i].blockTotal = (i === b.endIndex) ? b.total : "";
+          rec.sectors[i].blockFlightTotal = (i === b.endIndex) ? b.flightTotal : "";
         }
       });
       rec.cyclesSheet1 = nullToEmpty(sumNums(rec.sectors.map(function (s) { return s.cyc1; })));
@@ -1950,6 +2001,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     syncing = false;
     renderBlockGroups(rec);
     renderContinuity(rec);
+    fitTextToCells(document.getElementById("sheet"));
   }
 
   function setSectorVal(i, k, v) {
@@ -1971,7 +2023,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       g.style.display = "";
     });
     rec.sectors.forEach(function (s, i) {
-      ["takeOff", "land", "blockStart", "blockStop"].forEach(function (k) {
+      ["takeOff", "land", "blockStart", "blockStop", "from", "to"].forEach(function (k) {
         const el = document.querySelector("[data-s=\"" + i + "\"][data-k=\"" + k + "\"]");
         if (el) el.classList.remove("warn-flag");
       });
@@ -1989,9 +2041,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if (g) {
         const span = b.endIndex - b.startIndex + 1;
         if (span > 1) g.rowSpan = span;
-        const label = "Block " + (b.total || "—") + " (rows " + b.startRow + "–" + b.endRow + ")";
-        g.innerHTML = "<div class=\"block-label\">" + label + "</div>";
+        const label = b.label || ("BLOCK " + (b.from || "—") + "–" + (b.to || "—") + " " + (b.total || "—") +
+          " (ROWS " + b.startRow + "–" + b.endRow + ") · FLT " + (b.flightTotal || "—"));
+        g.innerHTML = "<div class=\"block-label\">" +
+          "<div class=\"bl-ports\">BLOCK " + (b.from || "—") + "–" + (b.to || "—") + "</div>" +
+          "<div class=\"bl-time\">" + (b.total || "—") + " · FLT " + (b.flightTotal || "—") + "</div>" +
+          "<div class=\"bl-rows\">ROWS " + b.startRow + "–" + b.endRow + "</div>" +
+          "</div>";
         g.title = label;
+        g.setAttribute("data-block-label", label);
       }
     });
     (rec.blockErrors || []).forEach(function (e) {
@@ -1999,9 +2057,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if (rows[idx]) rows[idx].classList.add("block-error");
     });
     (rec.blockWarnings || []).forEach(function (w) {
-      if (!w.field) return;
-      const el = document.querySelector("[data-s=\"" + ((w.row || 1) - 1) + "\"][data-k=\"" + w.field + "\"]");
-      if (el) el.classList.add("warn-flag");
+      if (w.field) {
+        const el = document.querySelector("[data-s=\"" + ((w.row || 1) - 1) + "\"][data-k=\"" + w.field + "\"]");
+        if (el) el.classList.add("warn-flag");
+      }
+      if (w.alsoField) {
+        const el2 = document.querySelector("[data-s=\"" + ((w.alsoRow || 1) - 1) + "\"][data-k=\"" + w.alsoField + "\"]");
+        if (el2) el2.classList.add("warn-flag");
+      }
     });
   }
 
@@ -2023,6 +2086,35 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (freg) freg.classList.toggle("cf-mismatch", (c.fields || []).indexOf("registration") >= 0);
     const fdate = document.getElementById("f-date");
     if (fdate) fdate.classList.toggle("cf-mismatch", (c.fields || []).indexOf("date") >= 0);
+  }
+
+  function fitTextToCells(root) {
+    root = root || document.getElementById("sheet");
+    if (!root) return;
+    const minPx = 5 * (96 / 72); /* 5pt */
+    const els = root.querySelectorAll("input, textarea, .block-label");
+    els.forEach(function (el) {
+      if (el.tagName === "INPUT") {
+        const typ = (el.type || "text").toLowerCase();
+        if (typ === "checkbox" || typ === "date" || typ === "file" || typ === "hidden" || typ === "radio") return;
+      }
+      el.style.fontSize = "";
+      const val = (el.value != null && el.tagName !== "DIV" ? el.value : (el.textContent || "")).trim();
+      if (!val) return;
+      /* Allow layout to settle at default size first */
+      void el.offsetWidth;
+      const room = el.clientWidth;
+      if (room < 8) return;
+      let size = parseFloat(window.getComputedStyle(el).fontSize);
+      if (!size || size <= 0) return;
+      if (el.scrollWidth <= room + 1) return;
+      let guard = 40;
+      while (guard-- && size > minPx) {
+        el.style.fontSize = size + "px";
+        if (el.scrollWidth <= el.clientWidth + 0.5) break;
+        size -= 0.4;
+      }
+    });
   }
 
   function validateTimes() {
@@ -2268,6 +2360,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       "Engine Cycles No1": s.cyc1, "Engine Cycles No2": s.cyc2,
       "Block Start": s.blockStart, "Block Stop": s.blockStop, "Block Total": s.blockTotal,
       "Block Group ID": s.blockGroupId, "Block Start Row": s.blockStartRow, "Block End Row": s.blockEndRow,
+      "Block From": s.blockFrom, "Block To": s.blockTo, "Block Flight Total": s.blockFlightTotal,
       "Take Off": s.takeOff, "Land": s.land, "Flight Total": s.flightTotal, "TIS After": s.tisAfter,
       "Captain": s.captain, "Captain PF": s.captainPF ? "Y" : "",
       "F/O": s.fo, "F/O PF": s.foPF ? "Y" : "",
@@ -2439,10 +2532,67 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   }
 
+  function shrinkFittedText(el, minPt) {
+    const minPx = (minPt || 5) * (96 / 72);
+    const text = (el.textContent || el.value || "").trim();
+    if (!text) return;
+    const view = el.ownerDocument.defaultView;
+    const cs = view.getComputedStyle(el);
+    let size = parseFloat(cs.fontSize) || 11;
+    const avail = el.clientWidth - 3;
+    if (avail <= 2) return;
+    const canvas = el.ownerDocument.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const family = cs.fontFamily;
+    const weight = cs.fontWeight;
+    let guard = 50;
+    while (guard-- && size > minPx) {
+      ctx.font = weight + " " + size + "px " + family;
+      if (ctx.measureText(text).width <= avail) break;
+      size -= 0.35;
+    }
+    el.style.fontSize = size + "px";
+  }
+
   function prepareSheetForCapture(cloneDoc) {
     cloneDoc.querySelectorAll(".no-print").forEach(function (el) { el.style.display = "none"; });
+    const view = cloneDoc.defaultView;
     cloneDoc.querySelectorAll("input, textarea, select").forEach(function (el) {
-      el.style.background = el.classList.contains("computed") ? "#cfdcc8" : "#fffef6";
+      const typ = (el.type || "text").toLowerCase();
+      if (typ === "checkbox" || typ === "radio" || typ === "hidden" || typ === "file") return;
+      const cs = view.getComputedStyle(el);
+      const val = el.tagName === "SELECT"
+        ? (el.selectedIndex >= 0 ? el.options[el.selectedIndex].text : el.value)
+        : (el.value || "");
+      const div = cloneDoc.createElement("div");
+      div.className = (el.className || "") + " pdf-val";
+      div.textContent = val;
+      div.style.boxSizing = "border-box";
+      div.style.width = "100%";
+      div.style.minHeight = (el.offsetHeight || parseFloat(cs.height) || 14) + "px";
+      div.style.height = (el.tagName === "TEXTAREA") ? (el.offsetHeight || 48) + "px" : (el.offsetHeight || parseFloat(cs.height) || 14) + "px";
+      div.style.fontFamily = cs.fontFamily;
+      div.style.fontSize = cs.fontSize;
+      div.style.fontWeight = el.classList.contains("computed") ? "700" : cs.fontWeight;
+      div.style.color = cs.color;
+      div.style.background = el.classList.contains("computed") ? "#cfdcc8" : "#fffef6";
+      div.style.border = "none";
+      div.style.padding = (el.tagName === "TEXTAREA") ? cs.padding : "0 2px";
+      div.style.margin = "0";
+      div.style.textAlign = cs.textAlign || "center";
+      div.style.whiteSpace = (el.tagName === "TEXTAREA") ? "pre-wrap" : "nowrap";
+      div.style.overflow = "hidden";
+      div.style.display = "flex";
+      div.style.alignItems = (el.tagName === "TEXTAREA") ? "flex-start" : "center";
+      const justify = cs.textAlign === "right" ? "flex-end" : (cs.textAlign === "left" || cs.textAlign === "start") ? "flex-start" : "center";
+      div.style.justifyContent = justify;
+      div.style.fontVariantNumeric = "tabular-nums";
+      div.style.letterSpacing = "0";
+      div.style.lineHeight = "1.15";
+      el.parentNode.replaceChild(div, el);
+    });
+    cloneDoc.querySelectorAll(".pdf-val, .block-label").forEach(function (el) {
+      shrinkFittedText(el, 5);
     });
   }
 
@@ -2454,8 +2604,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       el.style.display = "none";
     });
     try {
+      fitTextToCells(sheet);
+      await new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
       const canvas = await html2canvas(sheet, {
-        scale: 2,
+        scale: 2.5,
         useCORS: true,
         backgroundColor: "#e7f0e3",
         logging: false,
@@ -2471,7 +2623,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       let w = maxW, h = maxW * (canvas.height / canvas.width);
       if (h > maxH) { h = maxH; w = maxH * (canvas.width / canvas.height); }
       const x = (pageW - w) / 2, y = (pageH - h) / 2;
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, w, h, undefined, "FAST");
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, w, h, undefined, "MEDIUM");
       return pdf.output("blob");
     } finally {
       hidden.forEach(function (pair) { pair[0].style.display = pair[1]; });
@@ -2503,7 +2655,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         el.style.display = "none";
       });
       try {
-        const canvas = await html2canvas(sheet, { scale: 2, useCORS: true, backgroundColor: "#e7f0e3", logging: false, onclone: function (doc) { prepareSheetForCapture(doc); } });
+        fitTextToCells(sheet);
+        await new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
+        const canvas = await html2canvas(sheet, { scale: 2.5, useCORS: true, backgroundColor: "#e7f0e3", logging: false, onclone: function (doc) { prepareSheetForCapture(doc); } });
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
         const margin = 6;
@@ -2512,7 +2666,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         if (h > maxH) { h = maxH; w = maxH * (canvas.width / canvas.height); }
         const x = (pageW - w) / 2, y = (pageH - h) / 2;
         if (i > 0) pdf.addPage("a4", "landscape");
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, w, h, undefined, "FAST");
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, w, h, undefined, "MEDIUM");
       } finally {
         hidden.forEach(function (pair) { pair[0].style.display = pair[1]; });
       }
@@ -2706,6 +2860,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       cyc1: row["Engine Cycles No1"], cyc2: row["Engine Cycles No2"],
       blockStart: row["Block Start"], blockStop: row["Block Stop"], blockTotal: row["Block Total"],
       blockGroupId: row["Block Group ID"], blockStartRow: row["Block Start Row"], blockEndRow: row["Block End Row"],
+      blockFrom: row["Block From"], blockTo: row["Block To"], blockFlightTotal: row["Block Flight Total"],
       takeOff: row["Take Off"], land: row["Land"], flightTotal: row["Flight Total"], tisAfter: row["TIS After"],
       captain: row["Captain"], captainPF: String(row["Captain PF"] || "").toUpperCase() === "Y",
       fo: row["F/O"], foPF: String(row["F/O PF"] || "").toUpperCase() === "Y",
