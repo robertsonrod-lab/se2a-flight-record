@@ -144,45 +144,91 @@
       outline: 2px solid #c9a227; outline-offset: 0; background: #fff;
     }
     .inspec {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-bottom: 2.5mm;
-      align-items: stretch;
+      align-items: flex-start;
     }
     .sig-block {
       border: 1px solid var(--green);
       background: #f3f8f1;
-      padding: 3px 5px 4px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      grid-template-rows: auto auto;
-      gap: 2px 6px;
+      padding: 6px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1 1 360px;
+      max-width: 496px;
+      min-width: 0;
+      box-sizing: border-box;
     }
     .sig-block h3 {
-      grid-column: 1 / -1; margin: 0; font-size: 9px; letter-spacing: .08em;
+      margin: 0; font-size: 9px; letter-spacing: .08em;
       text-transform: uppercase; color: var(--green);
     }
-    .sig-wrap { position: relative; }
+    .sig-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 3 / 1;
+      min-height: 120px;
+      height: auto;
+      background: #fff;
+      border: 1px solid #7a9a7a;
+      border-radius: 1px;
+      touch-action: none;
+      box-sizing: border-box;
+    }
     .sig-wrap canvas, .sig-img {
-      display: block; width: 100%; height: 48px;
-      background: #fff; border: 1px solid #7a9a7a; cursor: crosshair;
-      touch-action: none; border-radius: 1px;
+      display: block; width: 100%; height: 100%;
+      background: #fff; cursor: crosshair;
+      touch-action: none; border: 0; border-radius: 1px;
+      object-fit: contain;
     }
-    .sig-actions { display: flex; flex-direction: column; gap: 3px; justify-content: flex-end; }
+    .sig-guide {
+      position: absolute; left: 8%; right: 8%; bottom: 24%;
+      border-bottom: 1px solid rgba(27, 77, 46, 0.32);
+      color: rgba(27, 77, 46, 0.38);
+      font-size: 11px; font-style: italic; letter-spacing: .04em;
+      pointer-events: none; user-select: none; line-height: 1;
+      padding-bottom: 3px;
+    }
+    .sig-wrap.has-ink .sig-guide { opacity: 0; }
+    .sig-actions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; }
     .sig-actions button {
-      font-size: 9px; padding: 3px 6px; border: 1px solid var(--green);
-      background: #fff; color: var(--green); cursor: pointer; border-radius: 3px;
+      font-size: 13px; padding: 8px 14px; border: 1px solid var(--green);
+      background: #fff; color: var(--green); cursor: pointer; border-radius: 4px;
+      min-height: 44px; min-width: 88px;
     }
-    .sig-meta { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 9px; }
-    .sig-meta input { flex: 1; border: none; border-bottom: 1px solid var(--green); background: transparent; font-size: 11px; padding: 1px 4px; }
+    .sig-meta { display: flex; align-items: center; gap: 6px; font-size: 9px; }
+    .sig-meta input { flex: 1; min-width: 0; border: none; border-bottom: 1px solid var(--green); background: transparent; font-size: 11px; padding: 1px 4px; }
     .sig-stamp { color: var(--muted); font-style: italic; min-height: 1em; }
     .oil-uplift {
-      border: 1px solid var(--green); padding: 3px 6px; min-width: 110px;
-      display: flex; flex-direction: column; gap: 3px; background: #f3f8f1;
+      border: 1px solid var(--green); padding: 6px 8px;
+      display: flex; flex-direction: column; gap: 6px; background: #f3f8f1;
+      flex: 0 0 auto; width: auto; max-width: 100%;
+      align-self: start; box-sizing: border-box;
     }
     .oil-uplift h3 { margin: 0; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--green); }
-    .oil-uplift .field input { width: 52px; flex: none; text-align: center; }
+    .compact-nums {
+      display: flex; flex-direction: row; align-items: center;
+      gap: 8px 10px; flex-wrap: nowrap; white-space: nowrap;
+    }
+    .compact-nums label, .compact-nums .lab {
+      font-weight: 700; color: var(--green); font-size: 11px; text-transform: uppercase;
+    }
+    .compact-nums input {
+      width: 4.6ch; min-width: 4.6ch; max-width: 5.5ch;
+      min-height: 44px; height: 44px; box-sizing: border-box;
+      text-align: center; font-size: 16px; padding: 4px 2px;
+      border: 1px solid #9eb59e; background: var(--input);
+    }
+    .ops-row {
+      display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: flex-start;
+    }
+    .ops-ticks { display: flex; flex-direction: row; flex-wrap: wrap; gap: 2px 14px; align-items: center; }
+    .apr { flex: 0 0 auto; width: auto; max-width: 100%; }
+    .apr h3 { margin: 0 0 6px; font-size: 9px; letter-spacing: .1em; }
     .table-scroll { width: 100%; overflow-x: auto; }
     table.sectors {
       width: 100%; border-collapse: collapse; table-layout: fixed;
@@ -208,6 +254,12 @@
       text-transform: uppercase;
     }
     table.sectors .chk { width: 14px; height: 14px; margin: 0; accent-color: var(--green); }
+    table.sectors td.sector-no {
+      font-weight: 800; font-variant-numeric: tabular-nums;
+      background: #dce8d8; color: var(--ink);
+      padding: 0 2px; width: 1.8em; min-width: 1.8em;
+      user-select: none; pointer-events: none;
+    }
     table.sectors td { position: relative; overflow: visible; }
     table.sectors td input { position: relative; z-index: 1; min-width: 0; max-width: 100%;
       box-sizing: border-box; font-variant-numeric: tabular-nums; letter-spacing: 0; }
@@ -363,7 +415,9 @@
       .sheet-head .titleblock, .sheet-head .serialbox, .sheet-head .brand { text-align: left; }
       .serialbox input[type="text"], .serialbox input[type="number"] { width: 100%; max-width: 240px; text-align: left; min-height: 44px; }
       .meta { grid-template-columns: 1fr 1fr; }
-      .inspec { grid-template-columns: 1fr; }
+      .inspec { display: flex; flex-wrap: wrap; }
+      .sig-block { flex: 1 1 320px; }
+      .sig-wrap { min-height: 120px; }
       .lower { grid-template-columns: 1fr; }
       .lower-left, .box.ops, .box.trend, .box.totals, .box.continuity {
         width: 100%; max-width: 100%; min-width: 0;
@@ -439,7 +493,34 @@
     }
     html.pdf-layout .sheet-head { grid-template-columns: 1fr auto 1fr !important; }
     html.pdf-layout .meta { grid-template-columns: 1.1fr 1.1fr 1fr !important; }
-    html.pdf-layout .inspec { grid-template-columns: 1fr 1fr auto !important; }
+    html.pdf-layout .inspec {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      align-items: flex-start !important;
+      gap: 6px !important;
+    }
+    html.pdf-layout .sig-block {
+      flex: 1 1 0 !important;
+      max-width: 360px !important;
+      padding: 3px 5px 4px !important;
+      gap: 3px !important;
+    }
+    html.pdf-layout .sig-wrap {
+      width: 100% !important;
+      max-width: 360px !important;
+      height: 120px !important;
+      min-height: 120px !important;
+      aspect-ratio: 3 / 1 !important;
+    }
+    html.pdf-layout .sig-wrap canvas,
+    html.pdf-layout .sig-img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+    }
+    html.pdf-layout .sig-actions { display: none !important; }
+    html.pdf-layout .oil-uplift { flex: 0 0 auto !important; width: auto !important; }
+    html.pdf-layout .compact-nums input { min-height: 22px !important; height: 22px !important; font-size: 11px !important; }
     html.pdf-layout .lower { grid-template-columns: 1.35fr 0.7fr 1.05fr !important; }
     html.pdf-layout .table-scroll { overflow: visible !important; }
     html.pdf-layout table.sectors {
@@ -538,8 +619,9 @@
       <div class="inspec">
         <div class="sig-block" id="sig-daily-block">
           <h3>Daily inspection</h3>
-          <div class="sig-wrap">
-            <canvas id="sig-daily" width="600" height="160" aria-label="Daily inspection signature pad"></canvas>
+          <div class="sig-wrap" id="sig-daily-wrap">
+            <canvas id="sig-daily" width="480" height="160" aria-label="Daily inspection signature pad"></canvas>
+            <div class="sig-guide" aria-hidden="true">Sign here</div>
           </div>
           <div class="sig-actions no-print">
             <button type="button" data-sig-clear="daily">Clear</button>
@@ -553,8 +635,9 @@
         </div>
         <div class="sig-block" id="sig-oil-block">
           <h3>Oil inspection</h3>
-          <div class="sig-wrap">
-            <canvas id="sig-oil" width="600" height="160" aria-label="Oil inspection signature pad"></canvas>
+          <div class="sig-wrap" id="sig-oil-wrap">
+            <canvas id="sig-oil" width="480" height="160" aria-label="Oil inspection signature pad"></canvas>
+            <div class="sig-guide" aria-hidden="true">Sign here</div>
           </div>
           <div class="sig-actions no-print">
             <button type="button" data-sig-clear="oil">Clear</button>
@@ -568,8 +651,10 @@
         </div>
         <div class="oil-uplift">
           <h3>Oil uplift (qts)</h3>
-          <div class="field"><label for="f-oil1">No1</label><input type="text" id="f-oil1" data-f="oilUplift1" inputmode="decimal"></div>
-          <div class="field"><label for="f-oil2">No2</label><input type="text" id="f-oil2" data-f="oilUplift2" inputmode="decimal"></div>
+          <div class="compact-nums">
+            <label for="f-oil1">No1</label><input type="text" id="f-oil1" data-f="oilUplift1" inputmode="decimal" maxlength="6" aria-label="Oil uplift No1 quarts">
+            <label for="f-oil2">No2</label><input type="text" id="f-oil2" data-f="oilUplift2" inputmode="decimal" maxlength="6" aria-label="Oil uplift No2 quarts">
+          </div>
         </div>
       </div>
 
@@ -685,12 +770,20 @@
 
         <div class="box ops">
           <h3>Type of operations</h3>
-          <label><input type="checkbox" data-f="opsSkytraders"> Skytraders</label>
-          <label><input type="checkbox" data-f="opsADFPS"> ADFPS</label>
-          <div class="apr">
-            <h3 style="margin-top:8px">APR total used (mins)</h3>
-            <div class="field"><label>Eng 1</label><input type="text" data-f="aprEng1" inputmode="decimal"></div>
-            <div class="field"><label>Eng 2</label><input type="text" data-f="aprEng2" inputmode="decimal"></div>
+          <div class="ops-row">
+            <div class="ops-ticks">
+              <label><input type="checkbox" data-f="opsSkytraders"> Skytraders</label>
+              <label><input type="checkbox" data-f="opsADFPS"> ADFPS</label>
+              <label><input type="checkbox" data-f="opsSND3"> SND3</label>
+              <label><input type="checkbox" data-f="opsSND4"> SND4</label>
+            </div>
+            <div class="apr">
+              <h3>APR total used (mins)</h3>
+              <div class="compact-nums">
+                <label>Eng 1</label><input type="text" data-f="aprEng1" inputmode="decimal" maxlength="6" aria-label="APR total used minutes engine 1">
+                <label>Eng 2</label><input type="text" data-f="aprEng2" inputmode="decimal" maxlength="6" aria-label="APR total used minutes engine 2">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -780,7 +873,7 @@
 
   <!-- INLINE_LIBS -->
 <script>
-window.SE2A_SHEET_HEADERS = ["Serial No", "UUID", "Submitted At", "Amended At", "Status", "Date", "Aircraft Type", "Registration", "Daily Inspection Signature", "Daily Inspection ARN", "Oil Inspection Signature", "Oil Inspection ARN", "Oil Uplift No1 (qts)", "Oil Uplift No2 (qts)", "Cycles This Sheet No1", "Cycles This Sheet No2", "Cycles C/Forward No1", "Cycles C/Forward No2", "Total Engine Cycles No1", "Total Engine Cycles No2", "Total Block Time", "Hard Landing", "Hard Landing Note", "Total Flight Time", "Total Time C/Forward", "Total Time in Service", "Total Landings", "Landings C/Forward", "Total Landings in Service", "Total PAX", "Total Fuel Added (Litres)", "Total Onboard Fuel C/Forward (lbs)", "Total Fuel Used (lbs)", "Total Onboard Fuel Remaining (lbs)", "Type of Operations", "APR Total Used Mins Eng1", "APR Total Used Mins Eng2", "Trend Eng1 Start EGT", "Trend Eng1 Torque", "Trend Eng1 EGT", "Trend Eng1 RPM", "Trend Eng1 Fuel Flow", "Trend Eng1 Oil Pressure", "Trend Eng1 Oil Temp", "Trend Eng2 Start EGT", "Trend Eng2 Torque", "Trend Eng2 EGT", "Trend Eng2 RPM", "Trend Eng2 Fuel Flow", "Trend Eng2 Oil Pressure", "Trend Eng2 Oil Temp", "Anti Ice", "ALT", "OAT", "IAS", "Crew Notes", "Transcription Notes", "Form Revision", "Continuity OK", "Continuity Notes"];
+window.SE2A_SHEET_HEADERS = ["Serial No", "UUID", "Submitted At", "Amended At", "Status", "Date", "Aircraft Type", "Registration", "Daily Inspection Signature", "Daily Inspection ARN", "Oil Inspection Signature", "Oil Inspection ARN", "Oil Uplift No1 (qts)", "Oil Uplift No2 (qts)", "Cycles This Sheet No1", "Cycles This Sheet No2", "Cycles C/Forward No1", "Cycles C/Forward No2", "Total Engine Cycles No1", "Total Engine Cycles No2", "Total Block Time", "Hard Landing", "Hard Landing Note", "Total Flight Time", "Total Time C/Forward", "Total Time in Service", "Total Landings", "Landings C/Forward", "Total Landings in Service", "Total PAX", "Total Fuel Added (Litres)", "Total Onboard Fuel C/Forward (lbs)", "Total Fuel Used (lbs)", "Total Onboard Fuel Remaining (lbs)", "Type of Operations", "SND3", "SND4", "APR Total Used Mins Eng1", "APR Total Used Mins Eng2", "Trend Eng1 Start EGT", "Trend Eng1 Torque", "Trend Eng1 EGT", "Trend Eng1 RPM", "Trend Eng1 Fuel Flow", "Trend Eng1 Oil Pressure", "Trend Eng1 Oil Temp", "Trend Eng2 Start EGT", "Trend Eng2 Torque", "Trend Eng2 EGT", "Trend Eng2 RPM", "Trend Eng2 Fuel Flow", "Trend Eng2 Oil Pressure", "Trend Eng2 Oil Temp", "Anti Ice", "ALT", "OAT", "IAS", "Crew Notes", "Transcription Notes", "Form Revision", "Continuity OK", "Continuity Notes"];
 window.SE2A_SECTOR_HEADERS = ["Serial No", "Sector No", "From", "To", "Engine Cycles No1", "Engine Cycles No2", "Block Start", "Block Stop", "Block Total", "Block Group ID", "Block Start Row", "Block End Row", "Block From", "Block To", "Block Flight Total", "Take Off", "Land", "Flight Total", "TIS After", "Captain", "Captain PF", "F/O", "F/O PF", "Landings", "PAX", "Fuel Added (Litres)", "Fuel Start (lbs)", "Fuel Shut Down (lbs)", "Fuel Used (lbs)"];
 
 </script>
@@ -1257,6 +1350,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   const DEFAULT_NEXT_SERIAL = 2027249;
   const LS = { next: "se2a.nextSerial", records: "se2a.records", draft: "se2a.draft" };
   const TZ = "Australia/Sydney";
+  /* Type-of-operations → registration auto-fill.
+     Values are the letters after VH- (so "VHA" means VH-VHA).
+     Ticking one exclusive option unticks the others in this map. */
+  const OPS_REGO = {
+    opsSND3: "VHA",
+    opsSND4: "VHB"
+  };
 
   const SHEET_HEADERS = window.SE2A_SHEET_HEADERS || [];
   const SECTOR_HEADERS = window.SE2A_SECTOR_HEADERS || [];
@@ -1398,8 +1498,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     s = (s || "").trim().toUpperCase().replace(/\s+/g, "");
     if (!s) return "";
     if (s === "VH-" || s === "VH") return "";
-    if (s.startsWith("VH-")) return s;
-    if (s.startsWith("VH")) return "VH-" + s.slice(2).replace(/^-/, "");
+    if (s.startsWith("VH-")) return "VH-" + s.slice(3).replace(/^-/, "");
+    /* "VHABC" pasted without a hyphen (prefix + 3+ letter suffix). Do not treat
+       a 3-letter suffix that happens to start with VH (e.g. VHA) as a prefix. */
+    if (s.startsWith("VH") && s.length >= 5) return "VH-" + s.slice(2).replace(/^-/, "");
     return "VH-" + s;
   }
 
@@ -1443,7 +1545,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       totalLandings: "", landingsCF: "", landingsInService: "",
       totalPAX: "", totalFuelAdded: "", fuelCF: "",
       totalFuelUsed: "", fuelRemaining: "",
-      opsSkytraders: false, opsADFPS: false,
+      opsSkytraders: false, opsADFPS: false, opsSND3: false, opsSND4: false,
       aprEng1: "", aprEng2: "",
       trend1: emptyTrend(), trend2: emptyTrend(),
       antiIce: "", alt: "", oat: "", ias: "",
@@ -1716,7 +1818,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function recalc(rec) {
-    rec.sectors.forEach(function (s) {
+    rec.sectors.forEach(function (s, i) {
+      s.no = String(i + 1);
       s.blockGroupId = "";
       s.blockStartRow = "";
       s.blockEndRow = "";
@@ -1836,6 +1939,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const o = [];
     if (rec.opsSkytraders) o.push("Skytraders");
     if (rec.opsADFPS) o.push("ADFPS");
+    if (rec.opsSND3) o.push("SND3");
+    if (rec.opsSND4) o.push("SND4");
     return o.join(", ");
   }
 
@@ -1869,10 +1974,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function SigPad(canvas, key) {
     this.canvas = canvas;
     this.key = key;
-    this.ctx = canvas.getContext("2d");
+    this.wrap = canvas.closest(".sig-wrap") || canvas.parentElement;
+    this.ctx = canvas.getContext("2d", { willReadFrequently: true });
     this.drawing = false;
     this.hasInk = false;
     this._last = null;
+    this._resizeGen = 0;
     this._bind();
     this._resize();
   }
@@ -1880,30 +1987,68 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const r = this.canvas.getBoundingClientRect();
     return { w: Math.max(1, r.width), h: Math.max(1, r.height) };
   };
-  SigPad.prototype._resize = function () {
-    const dpr = Math.max(2, window.devicePixelRatio || 1);
+  SigPad.prototype._storedUrl = function () {
+    const rec = (this.key === "daily") ? dailySig : oilSig;
+    if (rec && rec.dataUrl) return rec.dataUrl;
+    if (this.hasInk && this.canvas.width && this.canvas.height) {
+      try { return this.canvas.toDataURL("image/png"); } catch (e) { return ""; }
+    }
+    return "";
+  };
+  SigPad.prototype._style = function () {
+    const ctx = this.ctx;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#142418";
+  };
+  SigPad.prototype._setInkClass = function () {
+    if (this.wrap) this.wrap.classList.toggle("has-ink", !!this.hasInk);
+  };
+  SigPad.prototype._fitDraw = function (img) {
     const { w, h } = this._cssSize();
-    const stored = (this.key === "daily" ? dailySig.dataUrl : oilSig.dataUrl) || (this.hasInk ? this.canvas.toDataURL("image/png") : "");
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillRect(0, 0, w, h);
+    if (!img || !img.width || !img.height) return;
+    const ir = img.width / img.height;
+    const br = w / h;
+    let dw, dh, dx, dy;
+    if (ir > br) { dw = w; dh = w / ir; dx = 0; dy = (h - dh) / 2; }
+    else { dh = h; dw = h * ir; dx = (w - dw) / 2; dy = 0; }
+    this.ctx.drawImage(img, dx, dy, dw, dh);
+  };
+  SigPad.prototype._drawUrl = function (url, markInk, gen) {
+    const self = this;
+    return new Promise(function (resolve) {
+      if (!url) { resolve(); return; }
+      const img = new Image();
+      img.onload = function () {
+        if (gen != null && gen !== self._resizeGen) { resolve(); return; }
+        self._fitDraw(img);
+        if (markInk) self.hasInk = true;
+        self._setInkClass();
+        resolve();
+      };
+      img.onerror = function () { resolve(); };
+      img.src = url;
+    });
+  };
+  SigPad.prototype._resize = function () {
+    this._resizeGen = (this._resizeGen || 0) + 1;
+    const gen = this._resizeGen;
+    const dpr = Math.min(3, Math.max(window.devicePixelRatio || 1, 1));
+    const { w, h } = this._cssSize();
+    const stored = this._storedUrl();
     this.canvas.width = Math.round(w * dpr);
     this.canvas.height = Math.round(h * dpr);
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.scale(dpr, dpr);
-    this.ctx.lineCap = "round";
-    this.ctx.lineJoin = "round";
-    this.ctx.strokeStyle = "#142418";
+    this._style();
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, w, h);
-    if (stored) this._drawUrl(stored, true);
-  };
-  SigPad.prototype._drawUrl = function (url, markInk) {
-    const img = new Image();
-    const self = this;
-    img.onload = function () {
-      const { w, h } = self._cssSize();
-      self.ctx.drawImage(img, 0, 0, w, h);
-      if (markInk) self.hasInk = true;
-    };
-    img.src = url;
+    if (stored) return this._drawUrl(stored, true, gen);
+    this.hasInk = false;
+    this._setInkClass();
+    return Promise.resolve();
   };
   SigPad.prototype._pos = function (ev) {
     const r = this.canvas.getBoundingClientRect();
@@ -1911,6 +2056,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   };
   SigPad.prototype._bind = function () {
     const c = this.canvas, self = this;
+    c.style.touchAction = "none";
     c.addEventListener("pointerdown", function (ev) {
       ev.preventDefault();
       c.setPointerCapture(ev.pointerId);
@@ -1930,6 +2076,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       self.ctx.stroke();
       self._last = p;
       self.hasInk = true;
+      self._setInkClass();
     });
     function end(ev) {
       if (!self.drawing) return;
@@ -1940,12 +2087,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     c.addEventListener("pointerup", end);
     c.addEventListener("pointercancel", end);
     window.addEventListener("resize", function () { self._resize(); });
+    if (typeof ResizeObserver !== "undefined" && self.wrap) {
+      self._ro = new ResizeObserver(function () { self._resize(); });
+      self._ro.observe(self.wrap);
+    }
   };
   SigPad.prototype.commit = function () {
     const url = this.canvas.toDataURL("image/png");
     const at = nowIso();
     if (this.key === "daily") dailySig = { dataUrl: url, at: at };
     else oilSig = { dataUrl: url, at: at };
+    this._setInkClass();
     updateSigStamps();
     scheduleSave();
   };
@@ -1956,6 +2108,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     this.hasInk = false;
     if (this.key === "daily") dailySig = { dataUrl: "", at: "" };
     else oilSig = { dataUrl: "", at: "" };
+    this._setInkClass();
     updateSigStamps();
     scheduleSave();
   };
@@ -1964,14 +2117,22 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     this.ctx.fillStyle = "#ffffff";
     this.ctx.fillRect(0, 0, w, h);
     this.hasInk = false;
-    if (url) {
-      this.hasInk = true;
-      this._drawUrl(url, true);
-    }
     if (this.key === "daily") dailySig = { dataUrl: url || "", at: at || "" };
     else oilSig = { dataUrl: url || "", at: at || "" };
+    if (url) {
+      this.hasInk = true;
+      this._drawUrl(url, true, this._resizeGen);
+    }
+    this._setInkClass();
     updateSigStamps();
   };
+
+  function resizeSignaturePads() {
+    const jobs = [];
+    if (pads.daily && pads.daily._resize) jobs.push(pads.daily._resize());
+    if (pads.oil && pads.oil._resize) jobs.push(pads.oil._resize());
+    return Promise.all(jobs);
+  }
 
   function updateSigStamps() {
     const d = document.getElementById("sig-daily-stamp");
@@ -1989,7 +2150,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       tr.setAttribute("data-sector-row", String(i));
       tr.innerHTML =
         "<td class=\"block-gutter\" data-block-gutter=\"" + i + "\"></td>" +
-        cell("no", i, "text") +
+        "<td class=\"sector-no\">" + (i + 1) + "</td>" +
         cell("from", i, "text") +
         cell("to", i, "text") +
         cell("cyc1", i, "decimal") +
@@ -2091,6 +2252,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         if (el.type === "checkbox") s[k] = el.checked;
         else s[k] = el.value;
       });
+      s.no = String(i + 1);
     });
     document.querySelectorAll("[data-t]").forEach(function (el) {
       const t = el.getAttribute("data-t") === "1" ? rec.trend1 : rec.trend2;
@@ -2641,6 +2803,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       "Total Fuel Used (lbs)": r.totalFuelUsed,
       "Total Onboard Fuel Remaining (lbs)": r.fuelRemaining,
       "Type of Operations": opsText(r),
+      "SND3": r.opsSND3 ? "Y" : "", "SND4": r.opsSND4 ? "Y" : "",
       "APR Total Used Mins Eng1": r.aprEng1, "APR Total Used Mins Eng2": r.aprEng2,
       "Trend Eng1 Start EGT": r.trend1 && r.trend1.startEGT, "Trend Eng1 Torque": r.trend1 && r.trend1.torque,
       "Trend Eng1 EGT": r.trend1 && r.trend1.egt, "Trend Eng1 RPM": r.trend1 && r.trend1.rpm,
@@ -2910,6 +3073,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       el.style.display = "none";
     });
     try {
+      await resizeSignaturePads();
       fitTextToCells(sheet);
       await new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
       const canvas = await html2canvas(sheet, {
@@ -2937,6 +3101,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     } finally {
       hidden.forEach(function (pair) { pair[0].style.display = pair[1]; });
       if (!hadPdf) root.classList.remove("pdf-layout");
+      resizeSignaturePads();
     }
   }
 
@@ -2960,11 +3125,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       await new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
       const sheet = document.getElementById("sheet");
       const hidden = [];
+      document.documentElement.classList.add("pdf-layout");
       document.querySelectorAll(".no-print").forEach(function (el) {
         hidden.push([el, el.style.display]);
         el.style.display = "none";
       });
       try {
+        await resizeSignaturePads();
         fitTextToCells(sheet);
         await new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
         const canvas = await html2canvas(sheet, { scale: 2.5, useCORS: true, backgroundColor: "#e7f0e3", logging: false, windowWidth: 1123, onclone: function (doc) { doc.documentElement.classList.add("pdf-layout"); prepareSheetForCapture(doc); } });
@@ -2979,6 +3146,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, w, h, undefined, "MEDIUM");
       } finally {
         hidden.forEach(function (pair) { pair[0].style.display = pair[1]; });
+        document.documentElement.classList.remove("pdf-layout");
+        resizeSignaturePads();
       }
     }
     writeForm(keep);
@@ -3152,6 +3321,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const ops = String(row["Type of Operations"] || "");
     rec.opsSkytraders = /Skytraders/i.test(ops);
     rec.opsADFPS = /ADFPS/i.test(ops);
+    rec.opsSND3 = /SND3/i.test(ops) || /^Y(ES)?$/i.test(String(row["SND3"] || "").trim());
+    rec.opsSND4 = /SND4/i.test(ops) || /^Y(ES)?$/i.test(String(row["SND4"] || "").trim());
     rec.aprEng1 = row["APR Total Used Mins Eng1"];
     rec.aprEng2 = row["APR Total Used Mins Eng2"];
     rec.trend1 = { startEGT: row["Trend Eng1 Start EGT"], torque: row["Trend Eng1 Torque"], egt: row["Trend Eng1 EGT"], rpm: row["Trend Eng1 RPM"], ff: row["Trend Eng1 Fuel Flow"], oilP: row["Trend Eng1 Oil Pressure"], oilT: row["Trend Eng1 Oil Temp"] };
@@ -3286,6 +3457,35 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   /* ---------- events ---------- */
+  function currentRegoLetters() {
+    const el = document.getElementById("f-reg");
+    return el ? displayReg(normalizeReg(el.value)) : "";
+  }
+
+  function setRegoLetters(letters) {
+    const el = document.getElementById("f-reg");
+    if (!el) return;
+    el.value = displayReg(letters || "");
+  }
+
+  function applyOpsRego(ev) {
+    const t = ev && ev.target;
+    if (!t || !t.getAttribute) return;
+    const key = t.getAttribute("data-f");
+    if (!key || !Object.prototype.hasOwnProperty.call(OPS_REGO, key)) return;
+    const filled = displayReg(OPS_REGO[key]);
+    if (t.checked) {
+      Object.keys(OPS_REGO).forEach(function (other) {
+        if (other === key) return;
+        const el = document.querySelector("[data-f=\"" + other + "\"]");
+        if (el && el.checked) el.checked = false;
+      });
+      setRegoLetters(filled);
+    } else if (currentRegoLetters() === filled) {
+      setRegoLetters("");
+    }
+  }
+
   function onFormChange(ev) {
     if (syncing) return;
     if (!confirmAmendIfNeeded()) return;
@@ -3298,6 +3498,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
     if (t && t.id === "f-reg" && ev.type === "blur") {
       t.value = displayReg(normalizeReg(t.value));
+    }
+    if (t && t.getAttribute && Object.prototype.hasOwnProperty.call(OPS_REGO, t.getAttribute("data-f"))) {
+      if (ev.type === "change" || ev.type === "input") applyOpsRego(ev);
     }
     liveRecalc();
     updateNav();
@@ -3467,6 +3670,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       parseHHMM: parseHHMM,
       exportThis: exportThis,
       generatePdfBlobForCurrent: generatePdfBlobForCurrent,
+      OPS_REGO: OPS_REGO,
+      resizeSignaturePads: resizeSignaturePads,
       makeXlsxBlob: makeXlsxBlob,
       fileBase: fileBase,
       shareSubject: shareSubject,
