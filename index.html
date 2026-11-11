@@ -517,10 +517,10 @@
       margin: 0 0 3px; font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
       color: #fff; background: var(--green); padding: 2px 5px;
     }
-    .tot-grid { display: grid; grid-template-columns: auto 8.6ch 8.6ch 8.6ch; justify-content: start; gap: 2px 4px; align-items: center; font-size: 9px; }
+    .tot-grid { display: grid; grid-template-columns: auto 10.5ch 10.5ch 10.5ch; justify-content: start; gap: 2px 4px; align-items: center; font-size: 9px; }
     .tot-grid .h { font-weight: 700; color: var(--muted); font-size: 8px; text-transform: uppercase; }
     .tot-grid label { font-weight: 600; }
-    .tot-grid input { width: 8.6ch; max-width: 8.6ch; min-width: 0; border: 1px solid #9eb59e; background: var(--input); font-size: 11px; padding: 1px 2px; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 0; box-sizing: border-box; }
+    .tot-grid input { width: 10.5ch; max-width: 10.5ch; min-width: 0; border: 1px solid #9eb59e; background: var(--input); font-size: 11px; padding: 1px 2px; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 0; box-sizing: border-box; overflow: hidden; }
     .tot-span { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
     .tot-span input[type="text"] { flex: 1; text-align: left; }
     .ops label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; margin: 3px 0; }
@@ -616,9 +616,9 @@
       .lower-left, .box.ops, .box.trend, .box.totals, .box.continuity {
         width: 100%; max-width: 100%; min-width: 0;
       }
-      .tot-grid { font-size: 13px; grid-template-columns: auto 8.6ch 8.6ch 8.6ch; }
+      .tot-grid { font-size: 13px; grid-template-columns: auto 11ch 11ch 11ch; }
       .tot-grid input, .tot-grid label { font-size: 14px; }
-      .tot-grid input { min-height: 44px; width: 8.6ch; max-width: 8.6ch; }
+      .tot-grid input { min-height: 44px; width: 11ch; max-width: 11ch; }
       .box h3 { font-size: 12px; }
       .ops label { font-size: 15px; min-height: 44px; }
       .trend { overflow-x: auto; }
@@ -968,7 +968,7 @@
         <div class="box totals">
           <h3>Totals (calculated)</h3>
           <div class="tot-grid">
-            <span></span><span class="h">This sheet</span><span class="h">C/Forward</span><span class="h">Total</span>
+            <span></span><span class="h">This sheet</span><span class="h">Brought fwd</span><span class="h">Carried fwd</span>
 
             <label>Engine cycles No1</label>
             <input class="computed" data-f="cyclesSheet1" readonly tabindex="-1">
@@ -981,13 +981,13 @@
             <input class="computed" data-f="cyclesTotal2" readonly tabindex="-1">
 
             <label>Block time</label>
-            <input class="computed" data-f="totalBlock" readonly tabindex="-1" placeholder="hh:mm">
+            <input class="computed duration" data-f="totalBlock" readonly tabindex="-1" placeholder="hh:mm" title="This sheet block time (not accumulated)">
             <span></span><span></span>
 
             <label>Flight time</label>
-            <input class="computed" data-f="totalFlt" readonly tabindex="-1" placeholder="hh:mm">
-            <input data-f="timeCF" placeholder="hh:mm">
-            <input class="computed" data-f="timeInService" readonly tabindex="-1" placeholder="hh:mm" title="Total time in service">
+            <input class="computed duration" data-f="totalFlt" readonly tabindex="-1" placeholder="hh:mm" title="This sheet flight time">
+            <input class="duration" data-f="timeCF" placeholder="hh:mm" title="Brought forward time in service from the previous sheet">
+            <input class="computed duration" data-f="timeInService" readonly tabindex="-1" placeholder="hh:mm" title="Carried forward = brought forward + this sheet flight time">
 
             <label>Landings</label>
             <input class="computed" data-f="totalLandings" readonly tabindex="-1">
@@ -1102,7 +1102,7 @@
         Totals are calculated automatically and shown in the tinted cells.
         A block is departure-to-arrival: enter Block Start on the departure row (with that row’s FROM port) and Block Stop on the final arrival row (with that row’s TO port). Rows in between may have blank block times. The block total is arrival stop − departure start (plus 24 hours if it crosses midnight). The label also shows the sum of the flight times of the sectors in the block, e.g. BLOCK YSWW–YCOR 01:33 (ROWS 2–5) · FLT 01:23. Sheet total block time is the sum of those block totals only. Each sector still has its own flight time. A broken FROM/TO chain (a row’s FROM not equal to the previous row’s TO) is flagged in amber. TIS after is C/Forward time plus running flight time down the sheet.
         Fuel used (lbs) = start − shut down. Other sheet totals sum the sector rows.
-        Grand totals = C/Forward + this sheet (time in service = C/F time + total flight time).
+        Flight time carried forward = brought forward + this sheet’s flight time (updated as you enter sectors). The next sheet’s brought forward should match this carried forward, for the same aircraft. The same brought-forward + this sheet = carried-forward rule applies to engine cycles and landings. Block time is this sheet only. Time in service after each sector is brought forward + running flight time down the sheet.
         <strong>Onboard fuel remaining = shut-down fuel of the last sector that has a shut-down value</strong>
         (the actual remaining fuel after the last sector; fuel added is in litres and is not mixed into this pounds figure).
         Form SE2A November 2025. Data on this device only.
@@ -1999,6 +1999,52 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return m[1] ? -mins : mins;
   }
 
+  /* Accumulated durations (airframe / sheet totals). Unlike clock times, hours may exceed 23. */
+  function parseDuration(s) {
+    if (s == null) return null;
+    s = String(s).trim();
+    if (!s) return null;
+    const strict = parseHHMM(s);
+    if (strict != null) return strict;
+    let m = s.match(/^(-)?(\d+):([0-5]?\d)$/);
+    if (m) {
+      const mins = parseInt(m[2], 10) * 60 + parseInt(m[3], 10);
+      return m[1] ? -mins : mins;
+    }
+    m = s.match(/^(-)?(\d+)[.:]([0-5]?\d)$/);
+    if (m) {
+      const mins = parseInt(m[2], 10) * 60 + parseInt(m[3], 10);
+      return m[1] ? -mins : mins;
+    }
+    const compact = s.replace(/\D/g, "");
+    if (/^\d{5,7}$/.test(compact) && s.indexOf(":") < 0 && s.indexOf(".") < 0) {
+      const mm = parseInt(compact.slice(-2), 10);
+      const hh = parseInt(compact.slice(0, -2), 10);
+      if (mm <= 59 && Number.isFinite(hh)) return (s.charAt(0) === "-" ? -1 : 1) * (hh * 60 + mm);
+    }
+    if (/^(-)?\d{1,4}$/.test(s)) {
+      const sign = s.charAt(0) === "-" ? -1 : 1;
+      const hrs = parseInt(s.replace("-", ""), 10);
+      if (Number.isFinite(hrs)) return sign * hrs * 60;
+    }
+    return null;
+  }
+
+  function normalizeDurationInput(s) {
+    if (s == null) return "";
+    s = String(s).trim();
+    if (!s) return "";
+    const mins = parseDuration(s);
+    return mins == null ? s : formatHHMM(mins);
+  }
+
+  function isDurationField(el) {
+    if (!el) return false;
+    const k = el.getAttribute("data-f") || el.getAttribute("data-k") || "";
+    return el.classList.contains("duration") ||
+      k === "timeCF" || k === "timeInService" || k === "totalFlt" || k === "totalBlock" || k === "tisAfter";
+  }
+
   function formatHHMM(mins) {
     if (mins == null || !Number.isFinite(mins)) return "";
     const sign = mins < 0 ? "-" : "";
@@ -2092,7 +2138,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function sumTimes(values) {
     let total = 0, any = false;
     for (const v of values) {
-      const m = parseHHMM(v);
+      const m = parseDuration(v);
       if (m != null) { total += m; any = true; }
     }
     return any ? total : null;
@@ -2105,7 +2151,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function addHHMM(a, b) {
-    const ma = parseHHMM(a), mb = parseHHMM(b);
+    const ma = parseDuration(a), mb = parseDuration(b);
     if (ma == null && mb == null) return "";
     return formatHHMM((ma || 0) + (mb || 0));
   }
@@ -2506,7 +2552,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function timeDiffMsg(cur, prev, curLabel, prevLabel) {
-    const ma = parseHHMM(cur), mb = parseHHMM(prev);
+    const ma = parseDuration(cur), mb = parseDuration(prev);
     let extra = "";
     if (ma != null && mb != null) {
       const d = mb - ma;
@@ -2518,7 +2564,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   function sameValue(a, b, kind) {
     if (kind === "time") {
-      const ma = parseHHMM(a), mb = parseHHMM(b);
+      const ma = parseDuration(a), mb = parseDuration(b);
       if ((a === "" || a == null) && (b === "" || b == null)) return true;
       return ma != null && mb != null && ma === mb;
     }
@@ -2675,9 +2721,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       }
       rec.fuelRemaining = rem;
     }
-    let running = parseHHMM(rec.timeCF);
+    let running = parseDuration(rec.timeCF);
     rec.sectors.forEach(function (s) {
-      const ft = parseHHMM(s.flightTotal);
+      const ft = parseDuration(s.flightTotal);
       if (ft == null) { s.tisAfter = ""; return; }
       running = (running == null ? 0 : running) + ft;
       s.tisAfter = formatHHMM(running);
@@ -3048,6 +3094,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       const k = el.getAttribute("data-f");
       if (el.type === "checkbox") rec[k] = el.checked;
       else if (k === "date") rec[k] = toISODate(el.value);
+      else if (k === "timeCF" || k === "timeInService" || k === "totalFlt" || k === "totalBlock") rec[k] = normalizeDurationInput(el.value);
       else rec[k] = el.value;
     });
     rec.registration = normalizeReg(rec.registration);
@@ -3057,6 +3104,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       document.querySelectorAll("[data-s=\"" + i + "\"]").forEach(function (el) {
         const k = el.getAttribute("data-k");
         if (el.type === "checkbox") s[k] = el.checked;
+        else if (k === "tisAfter" || k === "flightTotal" || k === "blockTotal") s[k] = normalizeDurationInput(el.value);
         else if (el.getAttribute("placeholder") === "hh:mm") s[k] = normalizeTimeInput(el.value);
         else s[k] = el.value;
       });
@@ -3289,7 +3337,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       const el = document.querySelector("[data-f=\"" + k + "\"]");
       if (!el) return;
       const v = el.value.trim();
-      el.classList.toggle("invalid", !!(v && parseHHMM(v) == null));
+      el.classList.toggle("invalid", !!(v && parseDuration(v) == null));
     });
   }
 
@@ -3697,7 +3745,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       "Total Engine Cycles No1": r.cyclesTotal1, "Total Engine Cycles No2": r.cyclesTotal2,
       "Total Block Time": r.totalBlock,
       "Hard Landing": r.hardLanding, "Hard Landing Note": r.hardLandingNote,
-      "Total Flight Time": r.totalFlt, "Total Time C/Forward": r.timeCF, "Total Time in Service": r.timeInService,
+      "Total Flight Time": r.totalFlt,
+      "Total Time C/Forward": r.timeCF, "Total Time Brought Forward": r.timeCF,
+      "Total Time in Service": r.timeInService, "Total Time Carried Forward": r.timeInService,
       "Total Landings": r.totalLandings, "Landings C/Forward": r.landingsCF, "Total Landings in Service": r.landingsInService,
       "Total PAX": r.totalPAX,
       "Total Fuel Added (Litres)": r.totalFuelAdded,
@@ -3774,7 +3824,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       ["Times", "Block, flight and NOW times are UTC (HH:MM, 24-hour). A sector that crosses midnight UTC adds 24 hours to the duration. Continuity checks use the same UTC date and times."],
       ["System stamps", "Submitted, amended, saved and signed stamps are stored as UTC ISO times with a Z suffix (e.g. 2026-11-11T03:12Z)."],
       ["Amendments", "Each aircraft has an Amendments tab. A row is added for every field that changes when a submitted sheet is re-filed. Stamps are UTC with a Z suffix. The Sheets tab has an Amendments count and Amended At (UTC) for the last amendment. An optional reason typed on the form is stored in uppercase on each row."],
-      ["Computed fields", "Green-tinted columns are calculated by the form (block/flight totals, fuel used, sheet totals, C/F grand totals, fuel remaining)."],
+      ["Computed fields", "Green-tinted columns are calculated by the form. Flight time carried forward = brought forward + this sheet flight time. The same rule applies to engine cycles and landings. Block time is this sheet only. Fuel remaining is the last sector shut-down fuel."],
       ["Fuel remaining", "Equals the shut-down fuel (lbs) of the last sector that has a shut-down value. This is the actual remaining onboard fuel after the last sector. Fuel added is recorded in litres and is not mixed into this pounds figure."],
       ["Time durations", "Block and flight totals are stop minus start, plus 24 hours if the sector crosses midnight UTC."],
       ["Privacy", "This workbook is a local export. The web form stores data only in the device's browser (localStorage); a public copy of the form is always empty."],
@@ -4402,9 +4452,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     rec.totalBlock = row["Total Block Time"];
     rec.hardLanding = row["Hard Landing"];
     rec.hardLandingNote = row["Hard Landing Note"];
-    rec.totalFlt = row["Total Flight Time"];
-    rec.timeCF = row["Total Time C/Forward"];
-    rec.timeInService = row["Total Time in Service"];
+    rec.totalFlt = rowVal(row, "Total Flight Time");
+    rec.timeCF = rowVal(row, ["Total Time Brought Forward", "Total Time C/Forward"]);
+    rec.timeInService = rowVal(row, ["Total Time Carried Forward", "Total Time in Service"]);
     rec.totalLandings = row["Total Landings"];
     rec.landingsCF = row["Landings C/Forward"];
     rec.landingsInService = row["Total Landings in Service"];
@@ -4594,7 +4644,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (!confirmAmendIfNeeded()) return;
     const t = ev.target;
     if (t && t.getAttribute && t.getAttribute("placeholder") === "hh:mm" && ev.type === "blur") {
-      t.value = normalizeTimeInput(t.value);
+      t.value = isDurationField(t) ? normalizeDurationInput(t.value) : normalizeTimeInput(t.value);
     }
     if (t && t.id === "f-date" && ev.type === "blur") {
       const iso = toISODate(t.value);
@@ -4879,6 +4929,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       clockDuration: clockDuration,
       formatHHMM: formatHHMM,
       parseHHMM: parseHHMM,
+      parseDuration: parseDuration,
+      normalizeDurationInput: normalizeDurationInput,
+      addHHMM: addHHMM,
+      sumTimes: sumTimes,
       exportThis: exportThis,
       generatePdfBlobForCurrent: generatePdfBlobForCurrent,
       OPS_REGO: OPS_REGO,
