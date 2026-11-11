@@ -36,7 +36,10 @@
       --toolbar: #143822;
       --muted: #3d5a44;
     }
-    .sheet.status-filed {
+    /* Pale yellow only when this aircraft + serial exists as a filed row
+       in the stored records that feed the SND3/SND4 Sheets tabs. PDF stays white. */
+    .sheet.status-filed,
+    .sheet.has-workbook-record {
       --paper: #FFF6C2;
       --paper-dark: #F5E9A8;
       --computed: #F3E79A;
@@ -698,7 +701,8 @@
       --sector-bg: #ffffff;
     }
     html.pdf-layout .sheet,
-    html.pdf-layout .sheet.status-filed {
+    html.pdf-layout .sheet.status-filed,
+    html.pdf-layout .sheet.has-workbook-record {
       --paper: #ffffff;
       --computed: #ececec;
       --input: #ffffff;
@@ -792,7 +796,7 @@
       body { background: #fff; }
       .toolbar, .toast, .privacy, .no-print, dialog { display: none !important; }
       .wrap { padding: 0; }
-      .sheet, .sheet.status-filed {
+      .sheet, .sheet.status-filed, .sheet.has-workbook-record {
         --paper: #ffffff;
         --computed: #ececec;
         --input: #ffffff;
@@ -1626,6 +1630,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   let currentUuid = "";
   let currentStatus = "draft";
   let submittedAt = "";
+  /** Per-sector flag: true once the user types a From value. False lets From follow the previous To. */
+  let sectorFromManual = [];
   let savedAt = "";
   let amendedAt = "";
   let amendArmed = false;
@@ -2181,7 +2187,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       takeOff: "", land: "", flightTotal: "", tisAfter: "",
       captain: "", captainPF: false, fo: "", foPF: false,
       landings: "", pax: "",
-      fuelAdded: "", fuelStart: "", fuelShutdown: "", fuelUsed: ""
+      fuelAdded: "", fuelStart: "", fuelShutdown: "", fuelUsed: "",
+      fromManual: false
     };
   }
 
@@ -2654,6 +2661,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function recalc(rec) {
+    applyFromAutofill(rec);
     rec.sectors.forEach(function (s, i) {
       s.no = String(i + 1);
       s.blockGroupId = "";
@@ -3109,6 +3117,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         else s[k] = el.value;
       });
       s.no = String(i + 1);
+      s.fromManual = !!sectorFromManual[i];
     });
     document.querySelectorAll("[data-t]").forEach(function (el) {
       const t = el.getAttribute("data-t") === "1" ? rec.trend1 : rec.trend2;
@@ -3157,6 +3166,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         else el.value = s[k] == null ? "" : s[k];
       });
     });
+    sectorFromManual = (rec.sectors || []).map(function (s) { return sectorFromIsManual(s); });
+    while (sectorFromManual.length < SECTOR_COUNT) sectorFromManual.push(false);
     [["1", rec.trend1], ["2", rec.trend2]].forEach(function (pair) {
       const t = pair[1] || {};
       document.querySelectorAll("[data-t=\"" + pair[0] + "\"]").forEach(function (el) {
@@ -3186,6 +3197,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const rec = readForm();
     recalc(rec);
     syncing = true;
+    rec.sectors.forEach(function (s, i) {
+      if (!sectorFromIsManual(s)) setSectorVal(i, "from", s.from);
+    });
     if (!overrideOn) {
       rec.sectors.forEach(function (s, i) {
         setSectorVal(i, "blockTotal", s.blockTotal);
@@ -3379,13 +3393,62 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       " · data stays on this device";
   }
 
+  function normalizePort(v) {
+    return String(v == null ? "" : v).trim().toUpperCase();
+  }
+
+  function sectorFromIsManual(s) {
+    if (!s) return false;
+    if (s.fromManual === true) return true;
+    if (s.fromManual === false) return false;
+    // Legacy records have no fromManual flag: never invent or overwrite From.
+    return true;
+  }
+
+  function applyFromAutofill(rec) {
+    const sectors = (rec && rec.sectors) || [];
+    for (let i = 1; i < sectors.length; i++) {
+      const s = sectors[i];
+      if (!s) continue;
+      if (sectorFromIsManual(s)) continue;
+      const prevTo = normalizePort(sectors[i - 1] && sectors[i - 1].to);
+      s.from = prevTo;
+      s.fromManual = false;
+    }
+    return rec;
+  }
+
+  /* A row on the SND3/SND4 Sheets tabs is a filed (submitted or amended)
+     record with an aircraft and a serial. Autosaved drafts live in
+     localStorage too, but they are not treated as workbook sheet rows. */
+  function workbookSheetRecords() {
+    return loadRecords().filter(function (r) {
+      return isFiledStatus(r.status) && String(r.serial || "").trim() !== "";
+    });
+  }
+
+  function hasWorkbookSheetRow(aircraftId, serial) {
+    const ser = String(serial || "").trim();
+    if (!ser) return false;
+    const ac = aircraftId || "";
+    return workbookSheetRecords().some(function (r) {
+      return sameAircraft(r.aircraftId || "", ac) && String(r.serial || "").trim() === ser;
+    });
+  }
+
   function applySheetStatus() {
     const sheet = document.getElementById("sheet");
     if (!sheet) return;
-    const filed = currentStatus === "submitted" || currentStatus === "amended";
-    sheet.classList.toggle("status-filed", filed);
-    sheet.classList.toggle("status-draft", !filed);
+    const serialEl = document.getElementById("f-serial");
+    const serial = serialEl ? serialEl.value : "";
+    const acEl = document.getElementById("f-aircraft");
+    const ac = navAircraftId({ aircraftId: (acEl && acEl.value) || "" });
+    const has = hasWorkbookSheetRow(ac, serial);
+    sheet.classList.toggle("status-filed", has);
+    sheet.classList.toggle("has-workbook-record", has);
+    sheet.classList.toggle("status-draft", !has);
     sheet.setAttribute("data-status", currentStatus || "draft");
+    sheet.setAttribute("data-has-record", has ? "yes" : "no");
   }
 
   function updateNav() {
@@ -4659,6 +4722,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (t && t.id === "f-aircraft" && ev.type === "change") {
       applyAircraftChange();
     }
+    if (t && t.getAttribute && t.getAttribute("data-k") === "from") {
+      const i = parseInt(t.getAttribute("data-s"), 10);
+      if (Number.isFinite(i)) {
+        const typed = String(t.value || "").trim();
+        // "input" is the user's keystroke. A later "change"/"blur" may run after
+        // autofill has already written the previous To back into the field, so
+        // those events must not mark a just-cleared From as manual.
+        if (typed === "") sectorFromManual[i] = false;
+        else if (ev.type === "input") sectorFromManual[i] = true;
+      }
+    }
     liveRecalc();
     updateNav();
     scheduleSave();
@@ -4967,6 +5041,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       previousSheet: previousSheet,
       submitSheet: submitSheet,
       updateNav: updateNav,
+      applySheetStatus: applySheetStatus,
+      hasWorkbookSheetRow: hasWorkbookSheetRow,
+      workbookSheetRecords: workbookSheetRecords,
+      applyFromAutofill: applyFromAutofill,
       previousHistorySheet: previousHistorySheet,
       nextHistorySheet: nextHistorySheet,
       navAircraftId: navAircraftId,
