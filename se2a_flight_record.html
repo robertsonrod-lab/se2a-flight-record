@@ -289,9 +289,13 @@
     table.sectors input[data-k="fo"] { width: 6.2ch; max-width: 7ch; }
     table.sectors input[data-k="tisAfter"],
     table.sectors input[data-k="blockTotal"],
-    table.sectors input[data-k="flightTotal"] { width: 8.2ch; max-width: 8.6ch; }
-    table.sectors input[placeholder="hh:mm"]:not([data-k="tisAfter"]):not([data-k="blockTotal"]):not([data-k="flightTotal"]) {
-      width: 6.2ch; max-width: 6.6ch;
+    table.sectors input[data-k="flightTotal"] { width: 8.5ch; max-width: 9ch; }
+    table.sectors input[placeholder="hh:mm"]:not([data-k="tisAfter"]):not([data-k="blockTotal"]):not([data-k="flightTotal"]),
+    table.sectors input[data-k="blockStart"],
+    table.sectors input[data-k="blockStop"],
+    table.sectors input[data-k="takeOff"],
+    table.sectors input[data-k="land"] {
+      width: 8ch; max-width: 8.4ch;
     }
     table.sectors thead th {
       white-space: normal;
@@ -329,24 +333,78 @@
       font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; cursor: pointer;
       min-height: 28px; line-height: 1;
     }
-    .date-picker-hidden {
-      position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;
-      border: 0; padding: 0; margin: 0;
+    .cal-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: stretch;
+      flex: 0 0 auto;
+      vertical-align: stretch;
+    }
+    .cal-wrap .date-btn { pointer-events: none; }
+    .date-picker-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      opacity: 0.01;
+      cursor: pointer;
+      z-index: 2;
+      background: transparent;
+      color: transparent;
+      font-size: 16px;
+      -webkit-appearance: none;
+      appearance: none;
     }
     td.time-cell { padding: 0; vertical-align: stretch; }
     .time-wrap {
       display: flex; align-items: stretch; width: auto; min-width: 0; height: 100%;
       justify-content: center;
+      gap: 3px;
+      padding: 1px 2px;
     }
-    .time-wrap input { flex: 0 0 auto; min-width: 0; width: 6.2ch; }
+    .time-wrap input { flex: 0 0 auto; min-width: 0; width: 8ch; }
     .now-btn {
-      flex: 0 0 auto; appearance: none; margin: 0; border: 0;
-      border-left: 1px solid var(--green);
-      background: var(--now-bg); color: var(--green);
-      font-size: 7.5px; font-weight: 800; letter-spacing: 0.02em;
-      padding: 0 2px; min-width: 26px; line-height: 1; cursor: pointer;
+      flex: 0 0 auto;
+      appearance: none;
+      -webkit-appearance: none;
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      align-self: center;
+      margin: 0;
+      border: 1px solid var(--green);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff 0%, var(--now-bg) 100%);
+      box-shadow: 0 1px 2px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.8);
+      color: var(--green);
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      padding: 0 7px;
+      min-width: 36px;
+      min-height: 22px;
+      height: 22px;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .now-btn:hover { background: var(--now-hover); }
+    .now-ico { width: 11px; height: 11px; display: block; flex: 0 0 auto; }
+    .now-lbl { display: block; line-height: 1; }
+    .now-btn:hover { background: linear-gradient(180deg, #fff 0%, var(--now-hover) 100%); }
+    .now-btn:active, .now-btn.is-pressed {
+      transform: translateY(1px);
+      background: var(--now-hover);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.28);
+    }
     table.sectors tr.block-member td { background: var(--block-member); }
     table.sectors tr.block-member input { background: var(--block-member-input); }
     table.sectors tr.block-member input.computed { background: var(--computed); }
@@ -534,8 +592,10 @@
         font-size: 12px;
       }
       .now-btn {
-        min-width: 32px; width: 32px; min-height: 44px; font-size: 9px; padding: 0 2px;
+        min-width: 44px; width: auto; min-height: 44px; height: 44px;
+        font-size: 10px; padding: 0 8px; gap: 3px;
       }
+      .now-ico { width: 13px; height: 13px; }
       .date-btn { min-height: 44px; min-width: 48px; font-size: 13px; padding: 8px 8px; }
       .date-input { min-height: 44px; font-size: 16px; width: 11ch; max-width: 13ch; }
       table.sectors thead th { font-size: 10px; padding: 4px 2px; }
@@ -638,6 +698,8 @@
     html.pdf-layout .sig-actions,
     html.pdf-layout .now-btn,
     html.pdf-layout .date-btn,
+    html.pdf-layout .cal-wrap,
+    html.pdf-layout .date-picker-overlay,
     html.pdf-layout .date-picker-hidden { display: none !important; }
     html.pdf-layout .time-wrap { display: block !important; }
     html.pdf-layout .time-wrap input { width: 100% !important; min-height: 0 !important; height: auto !important; }
@@ -748,8 +810,10 @@
           <label for="f-date">Date</label>
           <input type="text" id="f-date" data-f="date" class="date-input" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="DD/MM/YYYY">
           <button type="button" class="date-btn no-print" id="btn-date-today">Today</button>
-          <button type="button" class="date-btn no-print" id="btn-date-cal" title="Choose date" aria-label="Choose date">Cal</button>
-          <input type="date" id="f-date-picker" class="date-picker-hidden no-print" tabindex="-1" aria-hidden="true">
+          <span class="cal-wrap no-print">
+            <button type="button" class="date-btn" id="btn-date-cal" tabindex="-1" aria-hidden="true">Cal</button>
+            <input type="date" id="f-date-picker" class="date-picker-overlay" aria-label="Choose date">
+          </span>
         </div>
       </div>
 
@@ -2354,7 +2418,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (mode === "time" && !computed) {
       return "<td class=\"time-cell\"><div class=\"time-wrap\">" +
         "<input data-s=\"" + i + "\" data-k=\"" + name + "\" placeholder=\"hh:mm\" inputmode=\"numeric\" autocomplete=\"off\" class=\"time-input\">" +
-        "<button type=\"button\" class=\"now-btn no-print\" data-now-s=\"" + i + "\" data-now-k=\"" + name + "\" title=\"Fill current time\">NOW</button>" +
+        "<button type=\"button\" class=\"now-btn no-print\" data-now-s=\"" + i + "\" data-now-k=\"" + name + "\" title=\"Fill current time\" aria-label=\"Fill current time\">" +
+        "<svg class=\"now-ico\" viewBox=\"0 0 16 16\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"/><path d=\"M8 4.2v4.1l2.6 1.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>" +
+        "<span class=\"now-lbl\">NOW</span></button>" +
         "</div></td>";
     }
     return "<td><input data-s=\"" + i + "\" data-k=\"" + name + "\"" +
@@ -2464,6 +2530,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         el.value = displayReg(rec.registration);
       } else if (k === "date") {
         el.value = formatAUDate(rec[k]) || rec[k] || "";
+        const picker = document.getElementById("f-date-picker");
+        const iso = toISODate(el.value);
+        if (picker) picker.value = iso || "";
       } else if (el.type === "checkbox") {
         el.checked = !!rec[k];
       } else {
@@ -3786,24 +3855,38 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if (t.dataset && t.dataset.sigClear) { ev.preventDefault(); pads[t.dataset.sigClear].clear(); }
       if (t.dataset && t.dataset.sigResign) { ev.preventDefault(); pads[t.dataset.sigResign].clear(); }
       if (t.dataset && t.dataset.close) document.getElementById(t.dataset.close).close();
-      if (t.dataset && t.dataset.nowS != null && t.dataset.nowK) {
+      if (t.closest && t.closest(".now-btn")) {
+        const btn = t.closest(".now-btn");
         ev.preventDefault();
-        fillTimeNow(t.dataset.nowS, t.dataset.nowK);
+        btn.classList.add("is-pressed");
+        clearTimeout(btn._pressTm);
+        btn._pressTm = setTimeout(function () { btn.classList.remove("is-pressed"); }, 180);
+        fillTimeNow(btn.dataset.nowS, btn.dataset.nowK);
       }
     });
     document.getElementById("btn-date-today").addEventListener("click", function () {
       setDateFromISO(todayISO());
     });
-    document.getElementById("btn-date-cal").addEventListener("click", function () {
+    function seedDatePicker() {
       const picker = document.getElementById("f-date-picker");
+      if (!picker) return;
       const iso = toISODate(document.getElementById("f-date").value) || todayISO();
       picker.value = iso;
-      if (picker.showPicker) {
+    }
+    document.getElementById("btn-date-cal").addEventListener("click", function () {
+      const picker = document.getElementById("f-date-picker");
+      seedDatePicker();
+      if (picker && picker.showPicker) {
         try { picker.showPicker(); return; } catch (e) {}
       }
-      picker.click();
+      if (picker) picker.click();
     });
+    document.getElementById("f-date-picker").addEventListener("focus", seedDatePicker);
+    document.getElementById("f-date-picker").addEventListener("pointerdown", seedDatePicker);
     document.getElementById("f-date-picker").addEventListener("change", function () {
+      if (this.value) setDateFromISO(this.value);
+    });
+    document.getElementById("f-date-picker").addEventListener("input", function () {
       if (this.value) setDateFromISO(this.value);
     });
 
